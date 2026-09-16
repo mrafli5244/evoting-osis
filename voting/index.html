@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>E-Voting OSIS</title>
+  <title>Pilih Kandidat — E-Voting OSIS</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -15,232 +15,143 @@
 
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
       background: #080b10;
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      padding: 25px 15px;
     }
 
-    .box {
-      width: 100%;
-      max-width: 460px;
-      background: #11161d;
-      border: 1px solid #29313c;
-      border-radius: 22px;
-      padding: 28px;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
-    }
-
-    .logo {
-      text-align: center;
-      font-size: 48px;
-      margin-bottom: 10px;
+    .container {
+      max-width: 900px;
+      margin: auto;
     }
 
     h1 {
       text-align: center;
-      margin: 0;
-      font-size: 30px;
+      margin-bottom: 8px;
     }
 
     .subtitle {
       text-align: center;
       color: #9ca3af;
-      margin: 10px 0 28px;
+      margin-bottom: 25px;
     }
 
-    label {
-      display: block;
-      margin-top: 15px;
-      margin-bottom: 7px;
-      font-weight: bold;
-    }
-
-    input {
-      width: 100%;
+    .voter {
+      background: #11161d;
+      border: 1px solid #29313c;
+      border-radius: 15px;
       padding: 15px;
-      border-radius: 11px;
-      border: 1px solid #394351;
-      background: #080b10;
-      color: white;
-      font-size: 16px;
-      outline: none;
+      margin-bottom: 25px;
+      text-align: center;
     }
 
-    input:focus {
-      border-color: #2563eb;
+    .candidates {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .candidate {
+      background: #11161d;
+      border: 1px solid #29313c;
+      border-radius: 18px;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .photo {
+      width: 100%;
+      height: 280px;
+      background: #171d25;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .candidate-info {
+      padding: 20px;
+    }
+
+    .number {
+      color: #60a5fa;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .names {
+      font-size: 21px;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+
+    .vision {
+      color: #9ca3af;
+      margin-top: 12px;
+      line-height: 1.5;
     }
 
     button {
       width: 100%;
-      padding: 15px;
-      margin-top: 22px;
+      padding: 14px;
+      margin-top: 18px;
       border: none;
-      border-radius: 11px;
+      border-radius: 10px;
       background: #2563eb;
       color: white;
-      font-size: 16px;
       font-weight: bold;
+      font-size: 16px;
       cursor: pointer;
     }
 
-    button:disabled {
-      opacity: .5;
-    }
-
-    .status {
-      text-align: center;
-      margin-top: 20px;
-      padding: 12px;
-      border-radius: 10px;
-      background: #171d25;
-      color: #9ca3af;
+    button:hover {
+      opacity: .9;
     }
 
     .message {
-      margin-top: 15px;
       text-align: center;
-      line-height: 1.5;
+      padding: 20px;
+      color: #9ca3af;
     }
 
     .error {
       color: #fca5a5;
-    }
-
-    .success {
-      color: #86efac;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .welcome {
-      text-align: center;
-      margin-top: 20px;
-      padding: 18px;
-      border-radius: 14px;
-      background: #0b1220;
-      border: 1px solid #26354d;
-    }
-
-    .continue {
-      background: #16a34a;
     }
   </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-  <div class="logo">🗳️</div>
-
-  <h1>E-Voting OSIS</h1>
+  <h1>🗳️ Pilih Kandidat</h1>
 
   <div class="subtitle">
-    Silakan masuk untuk mengikuti pemilihan
+    Pemilihan Ketua & Wakil Ketua OSIS
   </div>
 
-
-  <!-- LOGIN -->
-  <div id="loginPage">
-
-    <label for="nama">
-      Nama Lengkap
-    </label>
-
-    <input
-      id="nama"
-      type="text"
-      placeholder="Contoh: Aldi"
-      autocomplete="off"
-    >
-
-
-    <label for="kelas">
-      Kelas
-    </label>
-
-    <input
-      id="kelas"
-      type="text"
-      placeholder="Contoh: XII IPA 1"
-      autocomplete="off"
-    >
-
-
-    <button
-      id="loginButton"
-      onclick="loginPemilih()"
-    >
-      MASUK
-    </button>
-
-
-    <div
-      id="message"
-      class="message"
-    ></div>
-
-
-    <div
-      id="status"
-      class="status"
-    >
-      Memeriksa status pemilihan...
-    </div>
-
+  <div class="voter">
+    Pemilih:
+    <strong id="voterName">-</strong>
   </div>
 
-
-  <!-- BERHASIL LOGIN -->
-  <div
-    id="welcomePage"
-    class="hidden"
-  >
-
-    <div class="welcome">
-
-      <div class="success">
-        ✅ Identitas ditemukan
-      </div>
-
-      <br>
-
-      <strong id="welcomeName">
-        -
-      </strong>
-
-      <p class="subtitle">
-        Identitas pemilih berhasil diverifikasi.
-      </p>
-
-    </div>
-
-
-    <button
-      class="continue"
-      onclick="lanjutVoting()"
-    >
-      LANJUT KE PEMILIHAN →
-    </button>
-
+  <div id="message" class="message">
+    Memuat kandidat...
   </div>
+
+  <div id="candidates" class="candidates"></div>
 
 </div>
 
 
 <script>
-
-
-// =====================================================
-// SUPABASE
-// =====================================================
 
 const SUPABASE_URL =
   "https://uctbslkumtrlwbonvutz.supabase.co";
@@ -255,18 +166,44 @@ const supabaseClient =
   );
 
 
-// Pemilih yang sedang login
-let currentVoter = null;
+// =====================================================
+// AMBIL DATA PEMILIH DARI SESSION
+// =====================================================
+
+const voterId =
+  sessionStorage.getItem("voter_id");
+
+const voterName =
+  sessionStorage.getItem("voter_name");
+
+
+if (!voterId) {
+
+  document.getElementById("message").innerHTML =
+    "❌ Sesi pemilih tidak ditemukan.<br><br>" +
+    "Silakan kembali ke halaman utama dan login lagi.";
+
+} else {
+
+  document.getElementById("voterName")
+    .textContent = voterName || "-";
+
+  loadCandidates();
+
+}
 
 
 // =====================================================
-// CEK STATUS PEMILIHAN
+// LOAD KANDIDAT
 // =====================================================
 
-async function checkElectionStatus() {
+async function loadCandidates() {
 
-  const statusBox =
-    document.getElementById("status");
+  const message =
+    document.getElementById("message");
+
+  const box =
+    document.getElementById("candidates");
 
 
   const {
@@ -274,331 +211,159 @@ async function checkElectionStatus() {
     error
   } =
     await supabaseClient
-      .from("settings")
-      .select("status,start_at,end_at")
-      .eq("id", 1)
-      .single();
+      .from("candidates")
+      .select(
+        "id,number,chairman_name,vice_name,vision,photo_url"
+      )
+      .eq("active", true)
+      .order("number");
 
 
   if (error) {
 
-    statusBox.textContent =
-      "Status pemilihan tidak dapat dibaca.";
+    message.textContent =
+      "Gagal memuat kandidat: " +
+      error.message;
+
+    message.classList.add("error");
 
     return;
   }
 
 
-  const now =
-    new Date();
+  if (!data || data.length === 0) {
 
+    message.textContent =
+      "Belum ada kandidat yang tersedia.";
 
-  const start =
-    data.start_at
-      ? new Date(data.start_at)
-      : null;
-
-
-  const end =
-    data.end_at
-      ? new Date(data.end_at)
-      : null;
-
-
-  const isOpen =
-    data.status === "open" &&
-    (!start || now >= start) &&
-    (!end || now <= end);
-
-
-  if (isOpen) {
-
-    statusBox.textContent =
-      "🟢 Pemilihan sedang dibuka";
-
-    statusBox.style.color =
-      "#86efac";
-
-  } else {
-
-    statusBox.textContent =
-      "🔴 Pemilihan sedang ditutup";
-
-    statusBox.style.color =
-      "#fca5a5";
-
+    return;
   }
-
-}
-
-
-// =====================================================
-// LOGIN PEMILIH
-// =====================================================
-
-async function loginPemilih() {
-
-  const nama =
-    document
-      .getElementById("nama")
-      .value
-      .trim();
-
-
-  const kelas =
-    document
-      .getElementById("kelas")
-      .value
-      .trim();
-
-
-  const message =
-    document
-      .getElementById("message");
-
-
-  const button =
-    document
-      .getElementById("loginButton");
 
 
   message.textContent = "";
 
-  message.className =
-    "message";
+  box.innerHTML = "";
 
 
-  if (!nama || !kelas) {
+  data.forEach(candidate => {
 
-    message.textContent =
-      "Nama dan kelas wajib diisi.";
+    const card =
+      document.createElement("div");
 
-    message.classList.add(
-      "error"
-    );
-
-    return;
-  }
+    card.className =
+      "candidate";
 
 
-  button.disabled = true;
-
-  button.textContent =
-    "MEMERIKSA...";
-
-
-  try {
-
-    // ================================================
-    // CEK STATUS
-    // ================================================
-
-    const {
-      data: settings,
-      error: settingsError
-    } =
-      await supabaseClient
-        .from("settings")
-        .select("status,start_at,end_at")
-        .eq("id", 1)
-        .single();
+    let photoHTML = `
+      <div class="photo">
+        Foto kandidat belum tersedia
+      </div>
+    `;
 
 
-    if (settingsError) {
+    if (candidate.photo_url) {
 
-      throw settingsError;
+      photoHTML = `
+        <div class="photo">
+          <img
+            src="${escapeHtml(candidate.photo_url)}"
+            alt="Foto kandidat"
+          >
+        </div>
+      `;
 
     }
 
 
-    const now =
-      new Date();
+    card.innerHTML = `
 
+      ${photoHTML}
 
-    const start =
-      settings.start_at
-        ? new Date(settings.start_at)
-        : null;
+      <div class="candidate-info">
 
+        <div class="number">
+          NOMOR ${candidate.number}
+        </div>
 
-    const end =
-      settings.end_at
-        ? new Date(settings.end_at)
-        : null;
+        <div class="names">
+          ${escapeHtml(candidate.chairman_name)}
+          <br>
+          &
+          <br>
+          ${escapeHtml(candidate.vice_name)}
+        </div>
 
-
-    const isOpen =
-      settings.status === "open" &&
-      (!start || now >= start) &&
-      (!end || now <= end);
-
-
-    if (!isOpen) {
-
-      message.textContent =
-        "Pemilihan saat ini sedang ditutup.";
-
-      message.classList.add(
-        "error"
-      );
-
-      return;
-    }
-
-
-    // ================================================
-    // CARI PEMILIH
-    // ================================================
-
-    const {
-      data: voter,
-      error: voterError
-    } =
-      await supabaseClient
-        .from("voters")
-        .select(
-          "id,name,kelas,tipe_pemilih,has_voted"
-        )
-        .ilike(
-          "name",
-          nama
-        )
-        .ilike(
-          "kelas",
-          kelas
-        )
-        .maybeSingle();
-
-
-    if (voterError) {
-
-      throw voterError;
-
-    }
-
-
-    if (!voter) {
-
-      message.textContent =
-        "❌ Nama dan kelas tidak ditemukan.";
-
-      message.classList.add(
-        "error"
-      );
-
-      return;
-    }
-
-
-    // ================================================
-    // CEK SUDAH MEMILIH
-    // ================================================
-
-    if (voter.has_voted) {
-
-      message.textContent =
-        "⚠️ Pemilih ini sudah menggunakan hak suara.";
-
-      message.classList.add(
-        "error"
-      );
-
-      return;
-    }
-
-
-    // ================================================
-    // LOGIN BERHASIL
-    // ================================================
-
-    currentVoter =
-      voter;
-
-
-    document
-      .getElementById(
-        "loginPage"
-      )
-      .classList.add(
-        "hidden"
-      );
-
-
-    document
-      .getElementById(
-        "welcomePage"
-      )
-      .classList.remove(
-        "hidden"
-      );
-
-
-    document
-      .getElementById(
-        "welcomeName"
-      )
-      .textContent =
-        voter.name +
-        (
-          voter.kelas
-            ? " • " + voter.kelas
+        ${
+          candidate.vision
+            ? `<div class="vision">
+                ${escapeHtml(candidate.vision)}
+              </div>`
             : ""
-        );
+        }
+
+        <button
+          onclick="pilihKandidat('${candidate.id}')"
+        >
+          PILIH KANDIDAT
+        </button>
+
+      </div>
+
+    `;
 
 
-  } catch (error) {
+    box.appendChild(card);
 
-    console.error(error);
-
-    message.textContent =
-      "Terjadi kesalahan: " +
-      error.message;
-
-    message.classList.add(
-      "error"
-    );
-
-  } finally {
-
-    button.disabled =
-      false;
-
-    button.textContent =
-      "MASUK";
-
-  }
+  });
 
 }
 
 
 // =====================================================
-// LANJUT VOTING
+// PILIH KANDIDAT
 // =====================================================
 
-function lanjutVoting() {
+function pilihKandidat(candidateId) {
 
-  /*
-    Untuk sekarang belum pindah ke halaman kandidat.
+  const yakin =
+    confirm(
+      "Yakin memilih pasangan kandidat ini?"
+    );
 
-    Tahap berikutnya kita akan membuat:
-    voting.html
 
-    dan menghubungkannya dengan
-    currentVoter.
-  */
+  if (!yakin) {
+    return;
+  }
+
+
+  sessionStorage.setItem(
+    "selected_candidate",
+    candidateId
+  );
+
 
   alert(
-    "Login berhasil. Halaman kandidat akan kita buat di tahap berikutnya."
+    "Kandidat dipilih. Tahap berikutnya adalah konfirmasi suara."
   );
 
 }
 
 
 // =====================================================
-// JALANKAN SAAT HALAMAN DIBUKA
+// ESCAPE HTML
 // =====================================================
 
-checkElectionStatus();
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text || "";
+
+  return div.innerHTML;
+
+}
 
 </script>
 

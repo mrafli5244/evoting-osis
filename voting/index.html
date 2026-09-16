@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -46,12 +47,14 @@
       text-align: center;
     }
 
+    .voter strong {
+      color: #60a5fa;
+    }
+
     .candidates {
       display: grid;
-      grid-template-columns: repeat(
-        auto-fit,
-        minmax(290px, 1fr)
-      );
+      grid-template-columns:
+        repeat(auto-fit, minmax(290px, 1fr));
       gap: 20px;
     }
 
@@ -76,12 +79,14 @@
       align-items: center;
       justify-content: center;
       color: #6b7280;
+      overflow: hidden;
     }
 
     .photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
     .candidate-info {
@@ -93,6 +98,7 @@
       font-weight: bold;
       font-size: 15px;
       margin-bottom: 10px;
+      text-align: center;
     }
 
     .names {
@@ -141,6 +147,11 @@
       opacity: .9;
     }
 
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
     .message {
       text-align: center;
       padding: 20px;
@@ -151,11 +162,52 @@
       color: #fca5a5;
     }
 
+    .success {
+      color: #86efac;
+    }
+
     .empty {
       text-align: center;
       padding: 30px;
       color: #9ca3af;
     }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #9ca3af;
+    }
+
+    .warning {
+      background: #17120c;
+      border: 1px solid #4b3620;
+      color: #fbbf24;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    @media(max-width:600px) {
+
+      body {
+        padding: 18px 12px;
+      }
+
+      .candidate-info {
+        padding: 18px;
+      }
+
+      .photo {
+        height: 280px;
+      }
+
+      .names {
+        font-size: 20px;
+      }
+
+    }
+
   </style>
 </head>
 
@@ -169,16 +221,42 @@
     Pemilihan Ketua & Wakil Ketua OSIS
   </div>
 
+
+  <!-- =========================================
+       DATA PEMILIH
+  ========================================== -->
+
   <div class="voter">
+
     Pemilih:
-    <strong id="voterName">-</strong>
+
+    <strong id="voterName">
+      -
+    </strong>
+
   </div>
 
-  <div id="message" class="message">
+
+  <!-- =========================================
+       PESAN
+  ========================================== -->
+
+  <div
+    id="message"
+    class="message"
+  >
     Memuat kandidat...
   </div>
 
-  <div id="candidates" class="candidates"></div>
+
+  <!-- =========================================
+       DAFTAR KANDIDAT
+  ========================================== -->
+
+  <div
+    id="candidates"
+    class="candidates"
+  ></div>
 
 </div>
 
@@ -203,7 +281,7 @@ const supabaseClient =
 
 
 // =====================================================
-// AMBIL SESSION PEMILIH
+// SESSION PEMILIH
 // =====================================================
 
 const voterId =
@@ -212,19 +290,39 @@ const voterId =
 const voterName =
   sessionStorage.getItem("voter_name");
 
+const voterKelas =
+  sessionStorage.getItem("voter_kelas");
+
+
+// =====================================================
+// CEK SESSION
+// =====================================================
 
 if (!voterId) {
 
-  document.getElementById("message").innerHTML =
-    "❌ Sesi pemilih tidak ditemukan.<br><br>" +
-    "Silakan kembali ke halaman utama dan login lagi.";
+  document
+    .getElementById("message")
+    .innerHTML =
+      "❌ Sesi pemilih tidak ditemukan.<br><br>" +
+      "Silakan kembali ke halaman utama dan login lagi.";
+
+  document
+    .getElementById("message")
+    .classList.add("error");
 
 } else {
 
   document
     .getElementById("voterName")
     .textContent =
-      voterName || "-";
+      voterName
+        ? voterName +
+          (
+            voterKelas
+              ? " • " + voterKelas
+              : ""
+          )
+        : "-";
 
   loadCandidates();
 
@@ -244,173 +342,297 @@ async function loadCandidates() {
     document.getElementById("candidates");
 
 
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("candidates")
-      .select(
-        "id,number,chairman_name,vice_name,vision,mission,photo_url"
-      )
-      .eq("active", true)
-      .order("number");
+  message.textContent =
+    "Memuat kandidat...";
 
 
-  if (error) {
+  try {
 
-    message.textContent =
-      "Gagal memuat kandidat: " +
-      error.message;
+    // ================================================
+    // CEK STATUS PEMILIHAN
+    // ================================================
 
-    message.classList.add("error");
-
-    return;
-  }
-
-
-  if (!data || data.length === 0) {
-
-    message.textContent =
-      "Belum ada kandidat yang tersedia.";
-
-    return;
-  }
+    const {
+      data: settings,
+      error: settingsError
+    } =
+      await supabaseClient
+        .from("settings")
+        .select(
+          "status,start_at,end_at"
+        )
+        .eq("id", 1)
+        .single();
 
 
-  message.textContent = "";
+    if (settingsError) {
 
-  box.innerHTML = "";
-
-
-  data.forEach(candidate => {
-
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "candidate";
-
-
-    // =================================================
-    // FOTO
-    // =================================================
-
-    let photoHTML = `
-      <div class="photo">
-        📷 Foto kandidat belum tersedia
-      </div>
-    `;
-
-
-    if (candidate.photo_url) {
-
-      photoHTML = `
-        <div class="photo">
-          <img
-            src="${escapeHtml(candidate.photo_url)}"
-            alt="Foto ${escapeHtml(candidate.chairman_name)} dan ${escapeHtml(candidate.vice_name)}"
-          >
-        </div>
-      `;
+      throw settingsError;
 
     }
 
 
-    // =================================================
-    // VISI
-    // =================================================
+    const now =
+      new Date();
 
-    const visionHTML =
-      candidate.vision
-      ?
-      `
-        <div class="section">
 
-          <div class="section-title">
-            🎯 VISI
+    const start =
+      settings.start_at
+        ? new Date(settings.start_at)
+        : null;
+
+
+    const end =
+      settings.end_at
+        ? new Date(settings.end_at)
+        : null;
+
+
+    const isOpen =
+      settings.status === "open" &&
+      (!start || now >= start) &&
+      (!end || now <= end);
+
+
+    if (!isOpen) {
+
+      message.innerHTML =
+        "🔴 Pemilihan sedang ditutup.";
+
+      message.classList.add(
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    // ================================================
+    // AMBIL KANDIDAT
+    // ================================================
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("candidates")
+        .select(
+          "id,number,chairman_name,vice_name,vision,mission,photo_url"
+        )
+        .eq("active", true)
+        .order("number");
+
+
+    if (error) {
+
+      throw error;
+
+    }
+
+
+    if (!data || data.length === 0) {
+
+      message.textContent =
+        "Belum ada kandidat yang tersedia.";
+
+      message.classList.add(
+        "empty"
+      );
+
+      return;
+
+    }
+
+
+    message.textContent = "";
+
+    message.className =
+      "message";
+
+
+    box.innerHTML = "";
+
+
+    // ================================================
+    // TAMPILKAN KANDIDAT
+    // ================================================
+
+    data.forEach(candidate => {
+
+      const card =
+        document.createElement("div");
+
+
+      card.className =
+        "candidate";
+
+
+      // ============================================
+      // FOTO
+      // ============================================
+
+      let photoHTML = `
+        <div class="photo">
+          📷 Foto kandidat belum tersedia
+        </div>
+      `;
+
+
+      if (candidate.photo_url) {
+
+        photoHTML = `
+          <div class="photo">
+
+            <img
+              src="${escapeHtml(candidate.photo_url)}"
+              alt="Foto kandidat"
+              loading="lazy"
+            >
+
+          </div>
+        `;
+
+      }
+
+
+      // ============================================
+      // VISI
+      // ============================================
+
+      const visionHTML =
+        candidate.vision
+        ?
+        `
+          <div class="section">
+
+            <div class="section-title">
+              🎯 VISI
+            </div>
+
+            <div class="vision">
+              ${escapeHtml(candidate.vision)}
+            </div>
+
+          </div>
+        `
+        :
+        "";
+
+
+      // ============================================
+      // MISI
+      // ============================================
+
+      const missionHTML =
+        candidate.mission
+        ?
+        `
+          <div class="section">
+
+            <div class="section-title">
+              📌 MISI
+            </div>
+
+            <div class="mission">
+              ${escapeHtml(candidate.mission)}
+            </div>
+
+          </div>
+        `
+        :
+        "";
+
+
+      // ============================================
+      // CARD
+      // ============================================
+
+      card.innerHTML = `
+
+        ${photoHTML}
+
+        <div class="candidate-info">
+
+          <div class="number">
+            NOMOR ${escapeHtml(candidate.number)}
           </div>
 
-          <div class="vision">
-            ${escapeHtml(candidate.vision)}
+          <div class="names">
+
+            ${escapeHtml(candidate.chairman_name)}
+
+            <br>
+
+            &
+
+            <br>
+
+            ${escapeHtml(candidate.vice_name)}
+
           </div>
 
-        </div>
-      `
-      :
-      "";
+          ${visionHTML}
 
+          ${missionHTML}
 
-    // =================================================
-    // MISI
-    // =================================================
-
-    const missionHTML =
-      candidate.mission
-      ?
-      `
-        <div class="section">
-
-          <div class="section-title">
-            📌 MISI
-          </div>
-
-          <div class="mission">
-            ${escapeHtml(candidate.mission)}
-          </div>
-
-        </div>
-      `
-      :
-      "";
-
-
-    // =================================================
-    // CARD
-    // =================================================
-
-    card.innerHTML = `
-
-      ${photoHTML}
-
-      <div class="candidate-info">
-
-        <div class="number">
-          NOMOR ${escapeHtml(candidate.number)}
-        </div>
-
-        <div class="names">
-
-          ${escapeHtml(candidate.chairman_name)}
-
-          <br>
-
-          &
-
-          <br>
-
-          ${escapeHtml(candidate.vice_name)}
+          <button
+            class="vote-button"
+            data-candidate-id="${escapeHtml(candidate.id)}"
+          >
+            🗳️ PILIH KANDIDAT
+          </button>
 
         </div>
 
-        ${visionHTML}
-
-        ${missionHTML}
-
-        <button
-          onclick="pilihKandidat('${candidate.id}')"
-        >
-          🗳️ PILIH KANDIDAT
-        </button>
-
-      </div>
-
-    `;
+      `;
 
 
-    box.appendChild(card);
+      const voteButton =
+        card.querySelector(
+          ".vote-button"
+        );
 
-  });
+
+      voteButton.addEventListener(
+        "click",
+        function() {
+
+          pilihKandidat(
+            candidate.id,
+            candidate.chairman_name,
+            candidate.vice_name,
+            candidate.number
+          );
+
+        }
+      );
+
+
+      box.appendChild(card);
+
+    });
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "LOAD CANDIDATES ERROR:",
+      error
+    );
+
+
+    message.textContent =
+      "❌ Gagal memuat kandidat: " +
+      error.message;
+
+    message.classList.add(
+      "error"
+    );
+
+  }
 
 }
 
@@ -419,97 +641,323 @@ async function loadCandidates() {
 // PILIH KANDIDAT
 // =====================================================
 
-async function pilihKandidat(candidateId) {
+async function pilihKandidat(
+  candidateId,
+  chairmanName,
+  viceName,
+  candidateNumber
+) {
 
-console.log("SUPABASE ROLE TEST");
+  const buttons =
+    document.querySelectorAll(
+      ".vote-button"
+    );
 
-const {
-  data: sessionData
-} = await supabaseClient.auth.getSession();
 
-console.log("SESSION:", sessionData);
+  // ================================================
+  // CEGAH DOUBLE CLICK
+  // ================================================
 
-  const voterId =
-    sessionStorage.getItem("voter_id");
+  buttons.forEach(button => {
 
-  if (!voterId) {
-    alert("Sesi pemilih tidak ditemukan. Silakan login kembali.");
-    window.location.href = "../";
-    return;
-  }
+    button.disabled =
+      true;
 
-  const yakin = confirm(
-    "Yakin memilih kandidat ini?\n\nPilihan yang sudah dikirim tidak dapat diubah."
-  );
+  });
 
-  if (!yakin) {
-    return;
-  }
 
   try {
 
+    // ================================================
+    // CEK ID PEMILIH
+    // ================================================
+
+    const currentVoterId =
+      sessionStorage.getItem(
+        "voter_id"
+      );
+
+
+    const currentName =
+      sessionStorage.getItem(
+        "voter_name"
+      );
+
+
+    const currentKelas =
+      sessionStorage.getItem(
+        "voter_kelas"
+      );
+
+
+    if (!currentVoterId) {
+
+      alert(
+        "Sesi pemilih tidak ditemukan.\n\n" +
+        "Silakan login kembali."
+      );
+
+      window.location.href =
+        "../";
+
+      return;
+
+    }
+
+
+    // ================================================
+    // KONFIRMASI
+    // ================================================
+
+    const yakin =
+      confirm(
+        "Konfirmasi pilihan\n\n" +
+
+        "Nomor " +
+        candidateNumber +
+        "\n" +
+
+        chairmanName +
+        " & " +
+        viceName +
+        "\n\n" +
+
+        "Nama pemilih:\n" +
+        currentName +
+
+        (
+          currentKelas
+            ? "\n" + currentKelas
+            : ""
+        ) +
+
+        "\n\n" +
+
+        "Yakin ingin memilih pasangan ini?\n\n" +
+
+        "Pilihan yang sudah dikirim " +
+        "tidak dapat diubah."
+      );
+
+
+    if (!yakin) {
+
+      buttons.forEach(button => {
+
+        button.disabled =
+          false;
+
+      });
+
+      return;
+
+    }
+
+
+    // ================================================
+    // VERIFIKASI PEMILIH VIA RPC
+    // ================================================
+
     const {
-      data: voter,
+      data: voterData,
       error: voterError
-    } = await supabaseClient
-      .from("voters")
-      .select("id,name,has_voted")
-      .eq("id", voterId)
-      .single();
+    } =
+      await supabaseClient.rpc(
+        "verify_voter",
+        {
+          p_name:
+            currentName,
+
+          p_kelas:
+            currentKelas
+        }
+      );
+
 
     if (voterError) {
+
       throw voterError;
+
     }
 
-    if (voter.has_voted) {
-      alert("Pemilih ini sudah menggunakan hak suara.");
-      return;
+
+    const voter =
+      voterData &&
+      voterData.length > 0
+        ? voterData[0]
+        : null;
+
+
+    if (!voter) {
+
+      throw new Error(
+        "Data pemilih tidak ditemukan."
+      );
+
     }
+
+
+    // ================================================
+    // PASTIKAN ID SESUAI
+    // ================================================
+
+    if (
+      String(voter.id) !==
+      String(currentVoterId)
+    ) {
+
+      throw new Error(
+        "Sesi pemilih tidak sesuai dengan data."
+      );
+
+    }
+
+
+    // ================================================
+    // CEK SUDAH MEMILIH
+    // ================================================
+
+    if (voter.has_voted) {
+
+      alert(
+        "⚠️ Pemilih ini sudah menggunakan hak suara."
+      );
+
+      window.location.href =
+        "../";
+
+      return;
+
+    }
+
+
+    // ================================================
+    // SIMPAN SUARA
+    // ================================================
 
     const {
       error: voteError
-    } = await supabaseClient
-      .from("votes")
-      .insert({
-        voter_id: voterId,
-        candidate_id: candidateId
-      });
+    } =
+      await supabaseClient
+        .from("votes")
+        .insert({
+          voter_id:
+            currentVoterId,
+
+          candidate_id:
+            candidateId
+        });
+
 
     if (voteError) {
+
       throw voteError;
+
     }
+
+
+    // ================================================
+    // TANDAI SUDAH MEMILIH
+    // ================================================
 
     const {
       error: updateError
-    } = await supabaseClient
-      .from("voters")
-      .update({
-        has_voted: true
-      })
-      .eq("id", voterId);
+    } =
+      await supabaseClient
+        .from("voters")
+        .update({
+          has_voted: true
+        })
+        .eq(
+          "id",
+          currentVoterId
+        );
+
 
     if (updateError) {
-      throw updateError;
+
+      console.error(
+        "UPDATE VOTER ERROR:",
+        updateError
+      );
+
+      /*
+       * Suara sudah masuk tetapi status
+       * pemilih gagal diperbarui.
+       *
+       * Jangan langsung memasukkan suara kedua.
+       */
+
+      throw new Error(
+        "Suara sudah diproses, tetapi status pemilih gagal diperbarui. Hubungi admin."
+      );
+
     }
 
-    alert(
-      "✅ Suara berhasil direkam.\n\nTerima kasih telah menggunakan hak suara."
+
+    // ================================================
+    // HAPUS SESSION
+    // ================================================
+
+    sessionStorage.removeItem(
+      "voter_id"
     );
 
-    window.location.href = "../";
+    sessionStorage.removeItem(
+      "voter_name"
+    );
 
-  } catch (error) {
+    sessionStorage.removeItem(
+      "voter_kelas"
+    );
 
-    console.error(error);
+
+    // ================================================
+    // BERHASIL
+    // ================================================
+
+    alert(
+      "✅ SUARA BERHASIL DIREKAM!\n\n" +
+
+      "Terima kasih telah menggunakan " +
+      "hak suara dalam pemilihan OSIS."
+    );
+
+
+    window.location.href =
+      "../";
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "VOTING ERROR:",
+      error
+    );
+
 
     alert(
       "❌ Suara gagal disimpan.\n\n" +
       error.message
     );
 
+
+    // ================================================
+    // AKTIFKAN LAGI TOMBOL
+    // ================================================
+
+    buttons.forEach(button => {
+
+      button.disabled =
+        false;
+
+    });
+
   }
 
 }
+
 
 // =====================================================
 // ESCAPE HTML
@@ -520,8 +968,10 @@ function escapeHtml(text) {
   const div =
     document.createElement("div");
 
+
   div.textContent =
     text ?? "";
+
 
   return div.innerHTML;
 

@@ -32,47 +32,38 @@
       border: 1px solid #29313c;
       border-radius: 22px;
       padding: 28px;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
     }
 
     .logo {
       text-align: center;
-      font-size: 48px;
-      margin-bottom: 10px;
+      font-size: 50px;
     }
 
     h1 {
       text-align: center;
-      margin: 0;
-      font-size: 30px;
+      margin: 10px 0;
     }
 
     .subtitle {
       text-align: center;
       color: #9ca3af;
-      margin: 10px 0 28px;
+      margin-bottom: 25px;
     }
 
     label {
       display: block;
-      margin-top: 15px;
-      margin-bottom: 7px;
+      margin: 15px 0 7px;
       font-weight: bold;
     }
 
     input {
       width: 100%;
       padding: 15px;
-      border-radius: 11px;
+      border-radius: 10px;
       border: 1px solid #394351;
       background: #080b10;
       color: white;
       font-size: 16px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #2563eb;
     }
 
     button {
@@ -80,7 +71,7 @@
       padding: 15px;
       margin-top: 22px;
       border: none;
-      border-radius: 11px;
+      border-radius: 10px;
       background: #2563eb;
       color: white;
       font-size: 16px;
@@ -88,22 +79,9 @@
       cursor: pointer;
     }
 
-    button:disabled {
-      opacity: .5;
-    }
-
-    .status {
-      text-align: center;
-      margin-top: 20px;
-      padding: 12px;
-      border-radius: 10px;
-      background: #171d25;
-      color: #9ca3af;
-    }
-
     .message {
-      margin-top: 15px;
       text-align: center;
+      margin-top: 15px;
       line-height: 1.5;
     }
 
@@ -113,6 +91,15 @@
 
     .success {
       color: #86efac;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #171d25;
+      color: #9ca3af;
     }
 
     .hidden {
@@ -125,7 +112,6 @@
       padding: 18px;
       border-radius: 14px;
       background: #0b1220;
-      border: 1px solid #26354d;
     }
 
     .continue {
@@ -147,30 +133,25 @@
   </div>
 
 
-  <!-- LOGIN -->
+  <!-- HALAMAN LOGIN PEMILIH -->
+
   <div id="loginPage">
 
-    <label for="nama">
-      Nama Lengkap
-    </label>
+    <label>Nama Lengkap</label>
 
     <input
       id="nama"
       type="text"
       placeholder="Contoh: Aldi"
-      autocomplete="off"
     >
 
 
-    <label for="kelas">
-      Kelas
-    </label>
+    <label>Kelas</label>
 
     <input
       id="kelas"
       type="text"
       placeholder="Contoh: XII IPA 1"
-      autocomplete="off"
     >
 
 
@@ -198,7 +179,8 @@
   </div>
 
 
-  <!-- BERHASIL LOGIN -->
+  <!-- SETELAH LOGIN -->
+
   <div
     id="welcomePage"
     class="hidden"
@@ -212,9 +194,7 @@
 
       <br>
 
-      <strong id="welcomeName">
-        -
-      </strong>
+      <strong id="welcomeName"></strong>
 
       <p class="subtitle">
         Identitas pemilih berhasil diverifikasi.
@@ -237,7 +217,6 @@
 
 <script>
 
-
 // =====================================================
 // SUPABASE
 // =====================================================
@@ -255,10 +234,6 @@ const supabaseClient =
   );
 
 
-// Pemilih yang sedang login
-let currentVoter = null;
-
-
 // =====================================================
 // CEK STATUS PEMILIHAN
 // =====================================================
@@ -267,7 +242,6 @@ async function checkElectionStatus() {
 
   const statusBox =
     document.getElementById("status");
-
 
   const {
     data,
@@ -283,21 +257,18 @@ async function checkElectionStatus() {
   if (error) {
 
     statusBox.textContent =
-      "Status pemilihan tidak dapat dibaca.";
+      "Gagal membaca status pemilihan.";
 
     return;
   }
 
 
-  const now =
-    new Date();
-
+  const now = new Date();
 
   const start =
     data.start_at
       ? new Date(data.start_at)
       : null;
-
 
   const end =
     data.end_at
@@ -364,18 +335,14 @@ async function loginPemilih() {
 
   message.textContent = "";
 
-  message.className =
-    "message";
-
 
   if (!nama || !kelas) {
 
     message.textContent =
       "Nama dan kelas wajib diisi.";
 
-    message.classList.add(
-      "error"
-    );
+    message.className =
+      "message error";
 
     return;
   }
@@ -389,9 +356,7 @@ async function loginPemilih() {
 
   try {
 
-    // ================================================
-    // CEK STATUS
-    // ================================================
+    // Cek status
 
     const {
       data: settings,
@@ -405,21 +370,16 @@ async function loginPemilih() {
 
 
     if (settingsError) {
-
       throw settingsError;
-
     }
 
 
-    const now =
-      new Date();
-
+    const now = new Date();
 
     const start =
       settings.start_at
         ? new Date(settings.start_at)
         : null;
-
 
     const end =
       settings.end_at
@@ -436,19 +396,16 @@ async function loginPemilih() {
     if (!isOpen) {
 
       message.textContent =
-        "Pemilihan saat ini sedang ditutup.";
+        "🔴 Pemilihan sedang ditutup.";
 
-      message.classList.add(
-        "error"
-      );
+      message.className =
+        "message error";
 
       return;
     }
 
 
-    // ================================================
-    // CARI PEMILIH
-    // ================================================
+    // Cari pemilih
 
     const {
       data: voter,
@@ -459,21 +416,13 @@ async function loginPemilih() {
         .select(
           "id,name,kelas,tipe_pemilih,has_voted"
         )
-        .ilike(
-          "name",
-          nama
-        )
-        .ilike(
-          "kelas",
-          kelas
-        )
+        .ilike("name", nama)
+        .ilike("kelas", kelas)
         .maybeSingle();
 
 
     if (voterError) {
-
       throw voterError;
-
     }
 
 
@@ -482,86 +431,60 @@ async function loginPemilih() {
       message.textContent =
         "❌ Nama dan kelas tidak ditemukan.";
 
-      message.classList.add(
-        "error"
-      );
+      message.className =
+        "message error";
 
       return;
     }
 
-
-    // ================================================
-    // CEK SUDAH MEMILIH
-    // ================================================
 
     if (voter.has_voted) {
 
       message.textContent =
-        "⚠️ Pemilih ini sudah menggunakan hak suara.";
+        "⚠️ Pemilih ini sudah memilih.";
 
-      message.classList.add(
-        "error"
-      );
+      message.className =
+        "message error";
 
       return;
     }
 
 
-    // ================================================
-    // LOGIN BERHASIL
-    // ================================================
+    // Berhasil
 
-    currentVoter =
-      voter;
+    document
+      .getElementById("loginPage")
+      .classList.add("hidden");
 
 
     document
-      .getElementById(
-        "loginPage"
-      )
-      .classList.add(
-        "hidden"
-      );
+      .getElementById("welcomePage")
+      .classList.remove("hidden");
 
 
     document
-      .getElementById(
-        "welcomePage"
-      )
-      .classList.remove(
-        "hidden"
-      );
-
-
-    document
-      .getElementById(
-        "welcomeName"
-      )
+      .getElementById("welcomeName")
       .textContent =
         voter.name +
-        (
-          voter.kelas
-            ? " • " + voter.kelas
-            : ""
-        );
+        " • " +
+        voter.kelas;
 
+  }
 
-  } catch (error) {
-
-    console.error(error);
+  catch (error) {
 
     message.textContent =
       "Terjadi kesalahan: " +
       error.message;
 
-    message.classList.add(
-      "error"
-    );
+    message.className =
+      "message error";
 
-  } finally {
+  }
 
-    button.disabled =
-      false;
+  finally {
+
+    button.disabled = false;
 
     button.textContent =
       "MASUK";
@@ -572,31 +495,19 @@ async function loginPemilih() {
 
 
 // =====================================================
-// LANJUT VOTING
+// LANJUT KE HALAMAN KANDIDAT
 // =====================================================
 
 function lanjutVoting() {
 
-  /*
-    Untuk sekarang belum pindah ke halaman kandidat.
-
-    Tahap berikutnya kita akan membuat:
-    voting.html
-
-    dan menghubungkannya dengan
-    currentVoter.
-  */
-
   alert(
-    "Login berhasil. Halaman kandidat akan kita buat di tahap berikutnya."
+    "Login berhasil. Halaman kandidat akan kita buat berikutnya."
   );
 
 }
 
 
-// =====================================================
-// JALANKAN SAAT HALAMAN DIBUKA
-// =====================================================
+// Jalankan pengecekan
 
 checkElectionStatus();
 

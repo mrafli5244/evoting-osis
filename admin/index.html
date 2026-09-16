@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin — E-Voting OSIS</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080b10;
+      color: white;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 25px;
+    }
+
+    h1 {
+      font-size: 34px;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: #11161d;
+      border: 1px solid #29313c;
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #394351;
+      background: #080b10;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .success {
+      background: #16a34a;
+      color: white;
+    }
+
+    .muted {
+      color: #9ca3af;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .open {
+      background: #14532d;
+      color: #86efac;
+    }
+
+    .closed {
+      background: #450a0a;
+      color: #fca5a5;
+    }
+
+    .draft {
+      background: #422006;
+      color: #fdba74;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .stat {
+      background: #171d25;
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .candidate {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding: 17px;
+      margin: 10px 0;
+      border: 1px solid #303946;
+      border-radius: 12px;
+      background: #151a22;
+    }
+
+    .candidate-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .votes {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .logout {
+      background: #272d36;
+      color: white;
+    }
+
+    .message {
+      margin-top: 12px;
+      color: #fca5a5;
+    }
+
+    @media(max-width:700px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .candidate {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>🛠️ Dashboard Admin</h1>
+  <div class="subtitle">
+    E-Voting OSIS — Panel Pengelola
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginBox" class="card">
+    <h2>Login Admin</h2>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="Email admin"
+    >
+
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+    >
+
+    <button class="primary" onclick="login()">
+      Masuk sebagai Admin
+    </button>
+
+    <div id="loginMessage" class="message"></div>
+  </div>
+
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="hidden">
+
+    <div class="card">
+      <h2>👋 Selamat datang</h2>
+
+      <div id="adminName" class="muted">
+        Memuat...
+      </div>
+
+      <button class="logout" onclick="logout()">
+        Keluar
+      </button>
+    </div>
+
+
+    <!-- STATUS -->
+    <div class="card">
+
+      <h2>⚙️ Status Pemilihan</h2>
+
+      <div>
+        Status:
+        <span id="statusBadge" class="status">
+          ...
+        </span>
+      </div>
+
+      <p class="muted">
+        Mulai:
+        <span id="startTime">-</span>
+      </p>
+
+      <p class="muted">
+        Selesai:
+        <span id="endTime">-</span>
+      </p>
+
+      <button
+        id="openButton"
+        class="success"
+        onclick="openElection()"
+      >
+        🟢 Buka Pemilihan
+      </button>
+
+      <button
+        id="closeButton"
+        class="danger"
+        onclick="closeElection()"
+      >
+        🔴 Tutup Pemilihan
+      </button>
+
+      <div id="statusMessage" class="message"></div>
+
+    </div>
+
+
+    <!-- STATISTIK -->
+    <div class="card">
+
+      <h2>📊 Statistik</h2>
+
+      <div class="stats">
+
+        <div class="stat">
+          <div class="muted">
+            Total Pemilih
+          </div>
+
+          <div
+            id="totalVoters"
+            class="stat-number"
+          >
+            0
+          </div>
+        </div>
+
+
+        <div class="stat">
+          <div class="muted">
+            Sudah Memilih
+          </div>
+
+          <div
+            id="totalVoted"
+            class="stat-number"
+          >
+            0
+          </div>
+        </div>
+
+
+        <div class="stat">
+          <div class="muted">
+            Belum Memilih
+          </div>
+
+          <div
+            id="totalNotVoted"
+            class="stat-number"
+          >
+            0
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- HASIL -->
+    <div class="card">
+
+      <h2>🗳️ Hasil Suara</h2>
+
+      <div id="results">
+        Memuat hasil...
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  // ===============================
+  // SUPABASE
+  // ===============================
+
+  const SUPABASE_URL =
+    "https://uctbslkumtrlwbonvutz.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_IcsnBvHUXh6q1I4nV4xTNA_vsYYxxbv";
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  // ===============================
+  // LOGIN
+  // ===============================
+
+  async function login() {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    const message =
+      document.getElementById("loginMessage");
+
+    message.textContent = "";
+
+    if (!email || !password) {
+      message.textContent =
+        "Email dan password wajib diisi.";
+      return;
+    }
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+      message.textContent =
+        "Login gagal: " + error.message;
+      return;
+    }
+
+    await checkAdmin();
+
+  }
+
+
+  // ===============================
+  // CEK ADMIN
+  // ===============================
+
+  async function checkAdmin() {
+
+    const {
+      data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (!user) {
+      showLogin();
+      return;
+    }
+
+    const { data: admin, error } =
+      await supabaseClient
+        .from("admin_profiles")
+        .select("display_name, role")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+    if (error) {
+
+      document.getElementById("loginMessage").textContent =
+        "Gagal memeriksa admin: " + error.message;
+
+      await supabaseClient.auth.signOut();
+
+      return;
+    }
+
+    if (!admin) {
+
+      document.getElementById("loginMessage").textContent =
+        "Akun ini bukan admin.";
+
+      await supabaseClient.auth.signOut();
+
+      return;
+    }
+
+    document.getElementById("loginBox")
+      .classList.add("hidden");
+
+    document.getElementById("dashboard")
+      .classList.remove("hidden");
+
+    document.getElementById("adminName")
+      .textContent =
+        admin.display_name +
+        " • " +
+        admin.role;
+
+    await loadDashboard();
+
+  }
+
+
+  // ===============================
+  // LOAD DASHBOARD
+  // ===============================
+
+  async function loadDashboard() {
+
+    await loadSettings();
+
+    await loadStatistics();
+
+    await loadResults();
+
+  }
+
+
+  // ===============================
+  // SETTINGS
+  // ===============================
+
+  async function loadSettings() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("settings")
+        .select("*")
+        .eq("id", 1)
+        .single();
+
+    if (error) {
+
+      document.getElementById("statusMessage")
+        .textContent =
+        "Gagal membaca settings: " +
+        error.message;
+
+      return;
+    }
+
+    const badge =
+      document.getElementById("statusBadge");
+
+    badge.textContent =
+      data.status.toUpperCase();
+
+    badge.className =
+      "status " + data.status;
+
+    document.getElementById("startTime")
+      .textContent =
+      formatDate(data.start_at);
+
+    document.getElementById("endTime")
+      .textContent =
+      formatDate(data.end_at);
+
+  }
+
+
+  // ===============================
+  // BUKA PEMILIHAN
+  // ===============================
+
+  async function openElection() {
+
+    const start =
+      new Date();
+
+    const end =
+      new Date(
+        start.getTime() +
+        30 * 60 * 1000
+      );
+
+    const { error } =
+      await supabaseClient
+        .from("settings")
+        .update({
+          status: "open",
+          start_at: start.toISOString(),
+          end_at: end.toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", 1);
+
+    if (error) {
+
+      document.getElementById("statusMessage")
+        .textContent =
+        "Gagal membuka pemilihan: " +
+        error.message;
+
+      return;
+    }
+
+    document.getElementById("statusMessage")
+      .textContent =
+      "Pemilihan berhasil dibuka selama 30 menit.";
+
+    await loadSettings();
+
+  }
+
+
+  // ===============================
+  // TUTUP PEMILIHAN
+  // ===============================
+
+  async function closeElection() {
+
+    const yakin =
+      confirm(
+        "Yakin ingin menutup pemilihan?"
+      );
+
+    if (!yakin) return;
+
+    const { error } =
+      await supabaseClient
+        .from("settings")
+        .update({
+          status: "closed",
+          end_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", 1);
+
+    if (error) {
+
+      document.getElementById("statusMessage")
+        .textContent =
+        "Gagal menutup pemilihan: " +
+        error.message;
+
+      return;
+    }
+
+    document.getElementById("statusMessage")
+      .textContent =
+      "Pemilihan berhasil ditutup.";
+
+    await loadSettings();
+
+  }
+
+
+  // ===============================
+  // STATISTIK PEMILIH
+  // ===============================
+
+  async function loadStatistics() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("voters")
+        .select("has_voted");
+
+    if (error) {
+
+      console.log(error);
+
+      return;
+    }
+
+    const total =
+      data.length;
+
+    const voted =
+      data.filter(
+        voter => voter.has_voted
+      ).length;
+
+    const notVoted =
+      total - voted;
+
+    document.getElementById("totalVoters")
+      .textContent = total;
+
+    document.getElementById("totalVoted")
+      .textContent = voted;
+
+    document.getElementById("totalNotVoted")
+      .textContent = notVoted;
+
+  }
+
+
+  // ===============================
+  // HASIL SUARA
+  // ===============================
+
+  async function loadResults() {
+
+    const { data: candidates, error } =
+      await supabaseClient
+        .from("candidates")
+        .select("*")
+        .eq("active", true)
+        .order("number");
+
+    if (error) {
+
+      document.getElementById("results")
+        .textContent =
+        "Gagal membaca kandidat: " +
+        error.message;
+
+      return;
+    }
+
+
+    const { data: votes, error: voteError } =
+      await supabaseClient
+        .from("votes")
+        .select("candidate_id");
+
+    if (voteError) {
+
+      document.getElementById("results")
+        .textContent =
+        "Gagal membaca suara: " +
+        voteError.message;
+
+      return;
+    }
+
+
+    const resultBox =
+      document.getElementById("results");
+
+    resultBox.innerHTML = "";
+
+
+    candidates.forEach(candidate => {
+
+      const total =
+        votes.filter(
+          vote =>
+            vote.candidate_id === candidate.id
+        ).length;
+
+      const div =
+        document.createElement("div");
+
+      div.className =
+        "candidate";
+
+      div.innerHTML = `
+        <div>
+          <div class="candidate-name">
+            No. ${candidate.number}
+            — ${escapeHtml(candidate.chairman_name)}
+            & ${escapeHtml(candidate.vice_name)}
+          </div>
+
+          <div class="muted">
+            ${escapeHtml(candidate.vision || "")}
+          </div>
+        </div>
+
+        <div class="votes">
+          ${total} suara
+        </div>
+      `;
+
+      resultBox.appendChild(div);
+
+    });
+
+  }
+
+
+  // ===============================
+  // LOGOUT
+  // ===============================
+
+  async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    showLogin();
+
+  }
+
+
+  function showLogin() {
+
+    document.getElementById("loginBox")
+      .classList.remove("hidden");
+
+    document.getElementById("dashboard")
+      .classList.add("hidden");
+
+  }
+
+
+  // ===============================
+  // UTILITAS
+  // ===============================
+
+  function formatDate(date) {
+
+    if (!date) return "-";
+
+    return new Date(date)
+      .toLocaleString("id-ID");
+
+  }
+
+
+  function escapeHtml(text) {
+
+    const div =
+      document.createElement("div");
+
+    div.textContent =
+      text || "";
+
+    return div.innerHTML;
+
+  }
+
+
+  // ===============================
+  // CEK SESSION SAAT HALAMAN DIBUKA
+  // ===============================
+
+  checkAdmin();
+
+</script>
+
+</body>
+</html>

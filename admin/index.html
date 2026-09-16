@@ -9,7 +9,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -32,7 +34,8 @@ main{
   margin:16px 0;
 }
 
-input,select{
+input,
+select{
   width:100%;
   padding:13px;
   margin:7px 0;
@@ -49,6 +52,10 @@ button{
   font-weight:800;
   cursor:pointer;
   margin-top:8px;
+}
+
+button:hover{
+  opacity:.9;
 }
 
 .primary{
@@ -143,27 +150,6 @@ button{
   line-height:1.4;
 }
 
-.result-card{
-  background:#171b21;
-  border:1px solid #303640;
-  border-radius:15px;
-  padding:18px;
-  margin-top:12px;
-}
-
-.result-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-}
-
-.result-votes{
-  font-size:24px;
-  font-weight:800;
-  white-space:nowrap;
-}
-
 .file-input{
   padding:10px;
 }
@@ -180,7 +166,85 @@ button{
   color:white;
 }
 
+/* HASIL SUARA */
+
+.result-item{
+  background:#171b21;
+  border:1px solid #303640;
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:12px;
+}
+
+.result-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+.result-number{
+  color:#60a5fa;
+  font-weight:800;
+  font-size:15px;
+}
+
+.result-name{
+  font-size:18px;
+  font-weight:800;
+  line-height:1.4;
+  margin-top:6px;
+}
+
+.result-votes{
+  font-size:30px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.result-votes span{
+  font-size:14px;
+  opacity:.6;
+}
+
+.result-bar{
+  width:100%;
+  height:10px;
+  background:#0c0f13;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:15px;
+}
+
+.result-fill{
+  height:100%;
+  background:#2563eb;
+  border-radius:20px;
+  width:0%;
+  transition:width .4s ease;
+}
+
+.result-percent{
+  font-size:13px;
+  opacity:.6;
+  margin-top:7px;
+}
+
+.total-result{
+  text-align:center;
+  padding:15px;
+  margin-bottom:15px;
+  background:#0c0f13;
+  border-radius:12px;
+  color:#9ca3af;
+}
+
+.refresh-button{
+  width:100%;
+}
+
 @media(max-width:600px){
+
   main{
     padding:18px 12px;
   }
@@ -189,10 +253,14 @@ button{
     padding:18px;
   }
 
-  .result-top{
-    flex-direction:column;
+  .result-header{
     align-items:flex-start;
   }
+
+  .result-votes{
+    font-size:25px;
+  }
+
 }
 </style>
 </head>
@@ -208,7 +276,9 @@ E-Voting Ketua & Wakil Ketua OSIS
 </p>
 
 
-<!-- LOGIN -->
+<!-- =====================================================
+     LOGIN
+===================================================== -->
 
 <section id="login" class="card">
 
@@ -239,12 +309,16 @@ Masuk
 </section>
 
 
-<!-- DASHBOARD -->
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
 
 <section id="dashboard" class="hidden">
 
 
-<!-- ADMIN -->
+<!-- =====================================================
+     ADMIN
+===================================================== -->
 
 <div class="card">
 
@@ -264,7 +338,9 @@ Keluar
 </div>
 
 
-<!-- STATISTIK -->
+<!-- =====================================================
+     STATISTIK
+===================================================== -->
 
 <div class="grid">
 
@@ -309,7 +385,9 @@ Suara Masuk
 </div>
 
 
-<!-- HASIL SUARA -->
+<!-- =====================================================
+     HASIL SUARA
+===================================================== -->
 
 <section class="card">
 
@@ -324,7 +402,7 @@ Memuat hasil...
 </div>
 
 <button
-  class="primary"
+  class="primary refresh-button"
   onclick="loadResults()"
 >
 🔄 Refresh Hasil
@@ -333,7 +411,9 @@ Memuat hasil...
 </section>
 
 
-<!-- PENGATURAN -->
+<!-- =====================================================
+     PENGATURAN
+===================================================== -->
 
 <section class="card">
 
@@ -373,19 +453,42 @@ Memuat hasil...
 <label>Status</label>
 
 <select id="status">
-<option value="draft">Draft</option>
-<option value="open">Buka</option>
-<option value="paused">Jeda</option>
-<option value="closed">Tutup</option>
+
+<option value="draft">
+Draft
+</option>
+
+<option value="open">
+Buka
+</option>
+
+<option value="paused">
+Jeda
+</option>
+
+<option value="closed">
+Tutup
+</option>
+
 </select>
 
 
 <label>Hasil</label>
 
 <select id="results_mode">
-<option value="hidden">Sembunyikan</option>
-<option value="after_closed">Setelah ditutup</option>
-<option value="manual">Manual</option>
+
+<option value="hidden">
+Sembunyikan
+</option>
+
+<option value="after_closed">
+Setelah ditutup
+</option>
+
+<option value="manual">
+Manual
+</option>
+
 </select>
 
 
@@ -401,7 +504,9 @@ Simpan Pengaturan
 </section>
 
 
-<!-- FOTO KANDIDAT -->
+<!-- =====================================================
+     FOTO KANDIDAT
+===================================================== -->
 
 <section class="card">
 
@@ -488,8 +593,11 @@ async function login(){
     error
   } =
     await client.auth.signInWithPassword({
+
       email:email,
+
       password:password
+
     });
 
 
@@ -509,8 +617,13 @@ async function login(){
   } =
     await client
       .from("admin_profiles")
-      .select("display_name,role")
-      .eq("user_id",data.user.id)
+      .select(
+        "display_name,role"
+      )
+      .eq(
+        "user_id",
+        data.user.id
+      )
       .maybeSingle();
 
 
@@ -555,6 +668,7 @@ async function login(){
 
 
   await loadAll();
+
 }
 
 
@@ -587,6 +701,7 @@ function toLocal(v){
   return new Date(v)
     .toISOString()
     .slice(0,16);
+
 }
 
 
@@ -717,7 +832,10 @@ async function saveSettings(){
           new Date().toISOString()
 
       })
-      .eq("id",1);
+      .eq(
+        "id",
+        1
+      );
 
 
   document
@@ -725,9 +843,10 @@ async function saveSettings(){
     .textContent =
       error
       ?
-      error.message
+      "❌ " + error.message
       :
-      "Pengaturan tersimpan ✓";
+      "✅ Pengaturan tersimpan";
+
 
 }
 
@@ -739,7 +858,8 @@ async function saveSettings(){
 async function loadStats(){
 
   const {
-    count:total
+    count:total,
+    error:totalError
   } =
     await client
       .from("voters")
@@ -750,7 +870,8 @@ async function loadStats(){
 
 
   const {
-    count:voted
+    count:voted,
+    error:votedError
   } =
     await client
       .from("voters")
@@ -758,11 +879,15 @@ async function loadStats(){
         count:"exact",
         head:true
       })
-      .eq("has_voted",true);
+      .eq(
+        "has_voted",
+        true
+      );
 
 
   const {
-    count:voteCount
+    count:voteCount,
+    error:voteError
   } =
     await client
       .from("votes")
@@ -770,6 +895,36 @@ async function loadStats(){
         count:"exact",
         head:true
       });
+
+
+  if(totalError){
+
+    console.error(
+      "Gagal menghitung pemilih:",
+      totalError
+    );
+
+  }
+
+
+  if(votedError){
+
+    console.error(
+      "Gagal menghitung pemilih yang sudah voting:",
+      votedError
+    );
+
+  }
+
+
+  if(voteError){
+
+    console.error(
+      "Gagal menghitung suara:",
+      voteError
+    );
+
+  }
 
 
   document
@@ -799,13 +954,20 @@ async function loadStats(){
 async function loadResults(){
 
   const box =
-    document.getElementById("results");
+    document.getElementById(
+      "results"
+    );
 
-  box.textContent =
-    "Memuat hasil...";
+
+  box.innerHTML =
+    "⏳ Memuat hasil suara...";
 
 
   try{
+
+    // -------------------------------------------------
+    // AMBIL KANDIDAT
+    // -------------------------------------------------
 
     const {
       data:candidates,
@@ -816,13 +978,36 @@ async function loadResults(){
         .select(
           "id,number,chairman_name,vice_name"
         )
-        .eq("active",true)
-        .order("number");
+        .eq(
+          "active",
+          true
+        )
+        .order(
+          "number"
+        );
 
 
     if(candidateError)
       throw candidateError;
 
+
+    if(!candidates || candidates.length === 0){
+
+      box.innerHTML =
+        `
+        <div class="muted">
+          Belum ada kandidat aktif.
+        </div>
+        `;
+
+      return;
+
+    }
+
+
+    // -------------------------------------------------
+    // AMBIL SUARA
+    // -------------------------------------------------
 
     const {
       data:votes,
@@ -830,90 +1015,246 @@ async function loadResults(){
     } =
       await client
         .from("votes")
-        .select("candidate_id");
+        .select(
+          "candidate_id"
+        );
 
 
     if(voteError)
       throw voteError;
 
 
-    if(!candidates || candidates.length === 0){
+    // -------------------------------------------------
+    // HITUNG SUARA
+    // -------------------------------------------------
 
-      box.textContent =
-        "Belum ada kandidat.";
-
-      return;
-    }
+    const counts = {};
 
 
-    box.innerHTML = "";
+    candidates.forEach(
+      candidate => {
+
+        counts[candidate.id] = 0;
+
+      }
+    );
 
 
-    candidates.forEach(candidate => {
+    (votes || []).forEach(
+      vote => {
 
-      const total =
-        votes.filter(
-          vote =>
-            Number(vote.candidate_id) ===
-            Number(candidate.id)
-        ).length;
+        if(
+          Object.prototype.hasOwnProperty.call(
+            counts,
+            vote.candidate_id
+          )
+        ){
+
+          counts[vote.candidate_id]++;
+
+        }
+
+      }
+    );
 
 
-      const div =
-        document.createElement("div");
+    // -------------------------------------------------
+    // TOTAL SUARA
+    // -------------------------------------------------
+
+    let totalVotes = 0;
 
 
-      div.className =
-        "result-card";
+    candidates.forEach(
+      candidate => {
+
+        totalVotes +=
+          counts[candidate.id] || 0;
+
+      }
+    );
 
 
-      div.innerHTML = `
+    // -------------------------------------------------
+    // HEADER TOTAL
+    // -------------------------------------------------
 
-        <div class="result-top">
+    box.innerHTML = `
 
-          <div>
+      <div class="total-result">
 
-            <div class="candidate-number">
-              NOMOR ${esc(candidate.number)}
+        Total suara yang masuk:
+
+        <strong>
+          ${totalVotes}
+        </strong>
+
+      </div>
+
+    `;
+
+
+    // -------------------------------------------------
+    // TAMPILKAN SETIAP KANDIDAT
+    // -------------------------------------------------
+
+    candidates.forEach(
+      candidate => {
+
+        const jumlah =
+          counts[candidate.id] || 0;
+
+
+        const percentage =
+          totalVotes > 0
+          ?
+          (
+            jumlah /
+            totalVotes *
+            100
+          )
+          :
+          0;
+
+
+        const div =
+          document.createElement(
+            "div"
+          );
+
+
+        div.className =
+          "result-item";
+
+
+        div.innerHTML = `
+
+          <div class="result-header">
+
+            <div>
+
+              <div class="result-number">
+
+                NOMOR
+                ${esc(candidate.number)}
+
+              </div>
+
+              <div class="result-name">
+
+                ${esc(candidate.chairman_name)}
+
+                <br>
+
+                &
+
+                <br>
+
+                ${esc(candidate.vice_name)}
+
+              </div>
+
             </div>
 
-            <div class="candidate-name">
 
-              ${esc(candidate.chairman_name)}
+            <div class="result-votes">
 
-              <br>
+              ${jumlah}
 
-              &
-
-              <br>
-
-              ${esc(candidate.vice_name)}
+              <span>
+                suara
+              </span>
 
             </div>
 
           </div>
 
-          <div class="result-votes">
-            ${total} suara
+
+          <div class="result-bar">
+
+            <div
+              class="result-fill"
+              style="width:${percentage}%"
+            ></div>
+
           </div>
 
-        </div>
 
-      `;
+          <div class="result-percent">
+
+            ${percentage.toFixed(1)}%
+
+          </div>
+
+        `;
 
 
-      box.appendChild(div);
+        box.appendChild(
+          div
+        );
 
-    });
+      }
+    );
+
+
+    // -------------------------------------------------
+    // WAKTU UPDATE
+    // -------------------------------------------------
+
+    const updated =
+      document.createElement(
+        "div"
+      );
+
+
+    updated.style.cssText = `
+      text-align:center;
+      opacity:.45;
+      font-size:13px;
+      margin-top:15px;
+    `;
+
+
+    updated.textContent =
+      "Terakhir diperbarui: " +
+      new Date()
+        .toLocaleString(
+          "id-ID"
+        );
+
+
+    box.appendChild(
+      updated
+    );
+
 
   }
   catch(error){
 
-    console.error(error);
+    console.error(
+      "HASIL SUARA ERROR:",
+      error
+    );
 
-    box.textContent =
-      "❌ Gagal memuat hasil: " +
-      error.message;
+
+    box.innerHTML = `
+
+      <div style="
+        color:#fca5a5;
+        padding:10px 0;
+      ">
+
+        ❌ Gagal memuat hasil suara.
+
+        <br><br>
+
+        ${esc(
+          error.message
+        )}
+
+      </div>
+
+    `;
 
   }
 
@@ -927,8 +1268,9 @@ async function loadResults(){
 async function loadCandidates(){
 
   const box =
-    document
-      .getElementById("candidateList");
+    document.getElementById(
+      "candidateList"
+    );
 
 
   box.textContent =
@@ -944,8 +1286,13 @@ async function loadCandidates(){
       .select(
         "id,number,chairman_name,vice_name,vision,mission,photo_url"
       )
-      .eq("active",true)
-      .order("number");
+      .eq(
+        "active",
+        true
+      )
+      .order(
+        "number"
+      );
 
 
   if(error){
@@ -955,113 +1302,160 @@ async function loadCandidates(){
       error.message;
 
     return;
+
   }
 
 
-  if(!candidates || candidates.length === 0){
+  if(
+    !candidates ||
+    candidates.length === 0
+  ){
 
     box.textContent =
       "Belum ada kandidat.";
 
     return;
+
   }
 
 
   box.innerHTML = "";
 
 
-  candidates.forEach(candidate => {
+  candidates.forEach(
+    candidate => {
 
-    const div =
-      document.createElement("div");
-
-    div.className =
-      "candidate";
-
-
-    const photoHTML =
-      candidate.photo_url
-      ?
-      `
-      <img
-        class="candidate-photo"
-        src="${esc(candidate.photo_url)}"
-        alt="Foto kandidat"
-      >
-      `
-      :
-      `
-      <div class="no-photo">
-        📷 Belum ada foto
-      </div>
-      `;
+      const div =
+        document.createElement(
+          "div"
+        );
 
 
-    div.innerHTML = `
+      div.className =
+        "candidate";
 
-      ${photoHTML}
 
-      <div class="candidate-number">
-        NOMOR ${esc(candidate.number)}
-      </div>
-
-      <div class="candidate-name">
-        ${esc(candidate.chairman_name)}
-        <br>
-        &
-        <br>
-        ${esc(candidate.vice_name)}
-      </div>
-
-      <p class="muted">
-        <b>Visi:</b><br>
-        ${esc(candidate.vision || "-")}
-      </p>
-
-      <p class="muted">
-        <b>Misi:</b><br>
-        ${esc(candidate.mission || "-")}
-      </p>
-
-      <label>
-        Pilih foto
-      </label>
-
-      <input
-        class="file-input"
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        id="file-${candidate.id}"
-      >
-
-      <button
-        class="upload-button"
-        onclick="uploadPhoto('${candidate.id}')"
-      >
-        📤 Upload Foto
-      </button>
-
-      ${
+      const photoHTML =
         candidate.photo_url
         ?
         `
-        <button
-          class="delete-button"
-          onclick="deletePhoto('${candidate.id}')"
+        <img
+          class="candidate-photo"
+          src="${esc(candidate.photo_url)}"
+          alt="Foto kandidat"
         >
-          🗑️ Hapus Foto
-        </button>
         `
         :
-        ""
-      }
+        `
+        <div class="no-photo">
 
-    `;
+          📷 Belum ada foto
+
+        </div>
+        `;
 
 
-    box.appendChild(div);
+      div.innerHTML = `
 
-  });
+        ${photoHTML}
+
+
+        <div class="candidate-number">
+
+          NOMOR
+          ${esc(candidate.number)}
+
+        </div>
+
+
+        <div class="candidate-name">
+
+          ${esc(candidate.chairman_name)}
+
+          <br>
+
+          &
+
+          <br>
+
+          ${esc(candidate.vice_name)}
+
+        </div>
+
+
+        <p class="muted">
+
+          <b>Visi:</b>
+          <br>
+
+          ${esc(
+            candidate.vision || "-"
+          )}
+
+        </p>
+
+
+        <p class="muted">
+
+          <b>Misi:</b>
+          <br>
+
+          ${esc(
+            candidate.mission || "-"
+          )}
+
+        </p>
+
+
+        <label>
+          Pilih foto
+        </label>
+
+
+        <input
+          class="file-input"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          id="file-${candidate.id}"
+        >
+
+
+        <button
+          class="upload-button"
+          onclick="uploadPhoto('${candidate.id}')"
+        >
+
+          📤 Upload Foto
+
+        </button>
+
+
+        ${
+          candidate.photo_url
+          ?
+          `
+          <button
+            class="delete-button"
+            onclick="deletePhoto('${candidate.id}')"
+          >
+
+            🗑️ Hapus Foto
+
+          </button>
+          `
+          :
+          ""
+        }
+
+      `;
+
+
+      box.appendChild(
+        div
+      );
+
+    }
+  );
 
 }
 
@@ -1070,11 +1464,14 @@ async function loadCandidates(){
 // UPLOAD FOTO
 // =====================================================
 
-async function uploadPhoto(candidateId){
+async function uploadPhoto(
+  candidateId
+){
 
   const input =
     document.getElementById(
-      "file-" + candidateId
+      "file-" +
+      candidateId
     );
 
 
@@ -1084,12 +1481,16 @@ async function uploadPhoto(candidateId){
     );
 
 
-  if(!input || !input.files.length){
+  if(
+    !input ||
+    !input.files.length
+  ){
 
     message.textContent =
       "❌ Pilih foto terlebih dahulu.";
 
     return;
+
   }
 
 
@@ -1097,28 +1498,47 @@ async function uploadPhoto(candidateId){
     input.files[0];
 
 
-  if(file.size > 5 * 1024 * 1024){
+  // -------------------------------------------------
+  // MAKSIMAL 5 MB
+  // -------------------------------------------------
+
+  if(
+    file.size >
+    5 * 1024 * 1024
+  ){
 
     message.textContent =
       "❌ Ukuran foto maksimal 5 MB.";
 
     return;
+
   }
 
 
+  // -------------------------------------------------
+  // FORMAT
+  // -------------------------------------------------
+
   const allowedTypes = [
+
     "image/jpeg",
     "image/png",
     "image/webp"
+
   ];
 
 
-  if(!allowedTypes.includes(file.type)){
+  if(
+    !allowedTypes.includes(
+      file.type
+    )
+  ){
 
     message.textContent =
       "❌ Format harus JPG, PNG, atau WEBP.";
 
     return;
+
   }
 
 
@@ -1143,12 +1563,18 @@ async function uploadPhoto(candidateId){
       extension;
 
 
+    // -------------------------------------------------
+    // UPLOAD STORAGE
+    // -------------------------------------------------
+
     const {
       error:uploadError
     } =
       await client
         .storage
-        .from("candidate-photos")
+        .from(
+          "candidate-photos"
+        )
         .upload(
           fileName,
           file,
@@ -1163,12 +1589,18 @@ async function uploadPhoto(candidateId){
       throw uploadError;
 
 
+    // -------------------------------------------------
+    // PUBLIC URL
+    // -------------------------------------------------
+
     const {
       data:urlData
     } =
       client
         .storage
-        .from("candidate-photos")
+        .from(
+          "candidate-photos"
+        )
         .getPublicUrl(
           fileName
         );
@@ -1178,13 +1610,20 @@ async function uploadPhoto(candidateId){
       urlData.publicUrl;
 
 
+    // -------------------------------------------------
+    // SIMPAN URL DATABASE
+    // -------------------------------------------------
+
     const {
       error:updateError
     } =
       await client
         .from("candidates")
         .update({
-          photo_url:photoUrl
+
+          photo_url:
+            photoUrl
+
         })
         .eq(
           "id",
@@ -1220,7 +1659,9 @@ async function uploadPhoto(candidateId){
 // HAPUS FOTO
 // =====================================================
 
-async function deletePhoto(candidateId){
+async function deletePhoto(
+  candidateId
+){
 
   const yakin =
     confirm(
@@ -1240,14 +1681,23 @@ async function deletePhoto(candidateId){
 
   try{
 
+    // -------------------------------------------------
+    // AMBIL FOTO
+    // -------------------------------------------------
+
     const {
       data:candidate,
       error:getError
     } =
       await client
         .from("candidates")
-        .select("photo_url")
-        .eq("id",candidateId)
+        .select(
+          "photo_url"
+        )
+        .eq(
+          "id",
+          candidateId
+        )
         .single();
 
 
@@ -1255,13 +1705,19 @@ async function deletePhoto(candidateId){
       throw getError;
 
 
+    // -------------------------------------------------
+    // HAPUS URL DATABASE
+    // -------------------------------------------------
+
     const {
       error:updateError
     } =
       await client
         .from("candidates")
         .update({
+
           photo_url:null
+
         })
         .eq(
           "id",
@@ -1273,25 +1729,52 @@ async function deletePhoto(candidateId){
       throw updateError;
 
 
-    if(candidate.photo_url){
+    // -------------------------------------------------
+    // HAPUS FILE STORAGE
+    // -------------------------------------------------
+
+    if(
+      candidate.photo_url
+    ){
 
       const parts =
         candidate.photo_url
-          .split("/candidate-photos/");
+          .split(
+            "/candidate-photos/"
+          );
 
 
-      if(parts.length > 1){
+      if(
+        parts.length > 1
+      ){
 
         const filePath =
-          decodeURIComponent(parts[1]);
+          decodeURIComponent(
+            parts[1]
+          );
 
 
-        await client
-          .storage
-          .from("candidate-photos")
-          .remove([
-            filePath
-          ]);
+        const {
+          error:storageError
+        } =
+          await client
+            .storage
+            .from(
+              "candidate-photos"
+            )
+            .remove([
+              filePath
+            ]);
+
+
+        if(storageError){
+
+          console.warn(
+            "File storage gagal dihapus:",
+            storageError
+          );
+
+        }
 
       }
 
@@ -1329,12 +1812,28 @@ async function logout(){
 
   document
     .getElementById("login")
-    .classList.remove("hidden");
+    .classList.remove(
+      "hidden"
+    );
 
 
   document
     .getElementById("dashboard")
-    .classList.add("hidden");
+    .classList.add(
+      "hidden"
+    );
+
+
+  document
+    .getElementById("password")
+    .value =
+      "";
+
+
+  document
+    .getElementById("loginMsg")
+    .textContent =
+      "";
 
 }
 
@@ -1345,23 +1844,25 @@ async function logout(){
 
 function esc(value){
 
-  return String(value ?? "")
-    .replace(
-      /[&<>"']/g,
-      function(m){
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /[&<>"']/g,
+    function(m){
 
-        return {
+      return {
 
-          "&":"&amp;",
-          "<":"&lt;",
-          ">":"&gt;",
-          '"':"&quot;",
-          "'":"&#039;"
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
 
-        }[m];
+      }[m];
 
-      }
-    );
+    }
+  );
 
 }
 
@@ -1385,7 +1886,8 @@ async function checkAdmin(){
 
 
   const {
-    data:profile
+    data:profile,
+    error
   } =
     await client
       .from("admin_profiles")
@@ -1399,22 +1901,39 @@ async function checkAdmin(){
       .maybeSingle();
 
 
+  if(error){
+
+    console.error(
+      "Gagal membaca profil admin:",
+      error
+    );
+
+    return;
+
+  }
+
+
   if(!profile){
 
     await client.auth.signOut();
 
     return;
+
   }
 
 
   document
     .getElementById("login")
-    .classList.add("hidden");
+    .classList.add(
+      "hidden"
+    );
 
 
   document
     .getElementById("dashboard")
-    .classList.remove("hidden");
+    .classList.remove(
+      "hidden"
+    );
 
 
   document
@@ -1429,6 +1948,10 @@ async function checkAdmin(){
 
 }
 
+
+// =====================================================
+// START
+// =====================================================
 
 checkAdmin();
 

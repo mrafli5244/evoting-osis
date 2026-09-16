@@ -252,7 +252,7 @@ const SUPABASE_URL =
   "https://uctbslkumtrlwbonvutz.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_IcsnBvHUXh6q1I4nV4xTNA_vsYYxxbv";
+  "sb_publishable_IcsnBvHUXh6q1I1nV4xTNA_vsYYxxbv";
 
 const supabaseClient =
   window.supabase.createClient(
@@ -408,7 +408,7 @@ async function loginPemilih() {
   try {
 
     // ==============================
-    // CEK STATUS
+    // CEK STATUS PEMILIHAN
     // ==============================
 
     const {
@@ -467,27 +467,20 @@ async function loginPemilih() {
 
 
     // ==============================
-    // CARI DATA PEMILIH
+    // VERIFIKASI PEMILIH
     // ==============================
 
     const {
-      data: voter,
+      data: voterData,
       error: voterError
     } =
-      await supabaseClient
-        .from("voters")
-        .select(
-          "id,name,kelas,tipe_pemilih,has_voted"
-        )
-        .ilike(
-          "name",
-          nama
-        )
-        .ilike(
-          "kelas",
-          kelas
-        )
-        .maybeSingle();
+      await supabaseClient.rpc(
+        "verify_voter",
+        {
+          p_name: nama,
+          p_kelas: kelas
+        }
+      );
 
 
     if (voterError) {
@@ -495,6 +488,17 @@ async function loginPemilih() {
       throw voterError;
 
     }
+
+
+    // ==============================
+    // AMBIL PEMILIH
+    // ==============================
+
+    const voter =
+      voterData &&
+      voterData.length > 0
+        ? voterData[0]
+        : null;
 
 
     // ==============================
@@ -538,10 +542,6 @@ async function loginPemilih() {
     currentVoter =
       voter;
 
-
-    // Simpan sesi pemilih
-    // agar halaman voting mengenali
-    // siapa yang sedang memilih.
 
     sessionStorage.setItem(
       "voter_id",

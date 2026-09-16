@@ -143,6 +143,27 @@ button{
   line-height:1.4;
 }
 
+.result-card{
+  background:#171b21;
+  border:1px solid #303640;
+  border-radius:15px;
+  padding:18px;
+  margin-top:12px;
+}
+
+.result-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+.result-votes{
+  font-size:24px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
 .file-input{
   padding:10px;
 }
@@ -166,6 +187,11 @@ button{
 
   .card{
     padding:18px;
+  }
+
+  .result-top{
+    flex-direction:column;
+    align-items:flex-start;
   }
 }
 </style>
@@ -282,6 +308,7 @@ Suara Masuk
 
 </div>
 
+
 <!-- HASIL SUARA -->
 
 <section class="card">
@@ -293,7 +320,7 @@ Perolehan suara setiap pasangan kandidat.
 </p>
 
 <div id="results">
-  Memuat hasil...
+Memuat hasil...
 </div>
 
 <button
@@ -304,6 +331,7 @@ Perolehan suara setiap pasangan kandidat.
 </button>
 
 </section>
+
 
 <!-- PENGATURAN -->
 
@@ -542,6 +570,8 @@ async function loadAll(){
 
   await loadCandidates();
 
+  await loadResults();
+
 }
 
 
@@ -763,6 +793,134 @@ async function loadStats(){
 
 
 // =====================================================
+// HASIL SUARA
+// =====================================================
+
+async function loadResults(){
+
+  const box =
+    document.getElementById("results");
+
+  box.textContent =
+    "Memuat hasil...";
+
+
+  try{
+
+    const {
+      data:candidates,
+      error:candidateError
+    } =
+      await client
+        .from("candidates")
+        .select(
+          "id,number,chairman_name,vice_name"
+        )
+        .eq("active",true)
+        .order("number");
+
+
+    if(candidateError)
+      throw candidateError;
+
+
+    const {
+      data:votes,
+      error:voteError
+    } =
+      await client
+        .from("votes")
+        .select("candidate_id");
+
+
+    if(voteError)
+      throw voteError;
+
+
+    if(!candidates || candidates.length === 0){
+
+      box.textContent =
+        "Belum ada kandidat.";
+
+      return;
+    }
+
+
+    box.innerHTML = "";
+
+
+    candidates.forEach(candidate => {
+
+      const total =
+        votes.filter(
+          vote =>
+            Number(vote.candidate_id) ===
+            Number(candidate.id)
+        ).length;
+
+
+      const div =
+        document.createElement("div");
+
+
+      div.className =
+        "result-card";
+
+
+      div.innerHTML = `
+
+        <div class="result-top">
+
+          <div>
+
+            <div class="candidate-number">
+              NOMOR ${esc(candidate.number)}
+            </div>
+
+            <div class="candidate-name">
+
+              ${esc(candidate.chairman_name)}
+
+              <br>
+
+              &
+
+              <br>
+
+              ${esc(candidate.vice_name)}
+
+            </div>
+
+          </div>
+
+          <div class="result-votes">
+            ${total} suara
+          </div>
+
+        </div>
+
+      `;
+
+
+      box.appendChild(div);
+
+    });
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    box.textContent =
+      "❌ Gagal memuat hasil: " +
+      error.message;
+
+  }
+
+}
+
+
+// =====================================================
 // LOAD KANDIDAT
 // =====================================================
 
@@ -939,8 +1097,6 @@ async function uploadPhoto(candidateId){
     input.files[0];
 
 
-  // MAKSIMAL 5 MB
-
   if(file.size > 5 * 1024 * 1024){
 
     message.textContent =
@@ -949,8 +1105,6 @@ async function uploadPhoto(candidateId){
     return;
   }
 
-
-  // FORMAT FOTO
 
   const allowedTypes = [
     "image/jpeg",
@@ -989,8 +1143,6 @@ async function uploadPhoto(candidateId){
       extension;
 
 
-    // UPLOAD KE STORAGE
-
     const {
       error:uploadError
     } =
@@ -1011,8 +1163,6 @@ async function uploadPhoto(candidateId){
       throw uploadError;
 
 
-    // URL PUBLIC
-
     const {
       data:urlData
     } =
@@ -1027,8 +1177,6 @@ async function uploadPhoto(candidateId){
     const photoUrl =
       urlData.publicUrl;
 
-
-    // SIMPAN URL KE DATABASE
 
     const {
       error:updateError
@@ -1107,8 +1255,6 @@ async function deletePhoto(candidateId){
       throw getError;
 
 
-    // HAPUS URL DARI DATABASE
-
     const {
       error:updateError
     } =
@@ -1126,8 +1272,6 @@ async function deletePhoto(candidateId){
     if(updateError)
       throw updateError;
 
-
-    // HAPUS FILE STORAGE
 
     if(candidate.photo_url){
 

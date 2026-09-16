@@ -6,14 +6,13 @@
 
   <title>Dashboard Admin — E-Voting OSIS</title>
 
-  <!-- Supabase -->
+  <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- SheetJS untuk membaca Excel -->
+  <!-- SHEETJS / PEMBACA EXCEL -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
@@ -76,7 +75,7 @@
     }
 
     button:disabled {
-      opacity: .5;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
@@ -181,6 +180,15 @@
       font-weight: bold;
     }
 
+    .info-box {
+      background: #0b1220;
+      border: 1px solid #26354d;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 15px;
+      line-height: 1.6;
+    }
+
     .preview-wrapper {
       overflow-x: auto;
       margin-top: 15px;
@@ -189,7 +197,7 @@
     .preview-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 500px;
+      min-width: 550px;
     }
 
     .preview-table th,
@@ -201,26 +209,6 @@
 
     .preview-table th {
       color: #93c5fd;
-    }
-
-    .info-box {
-      background: #0b1220;
-      border: 1px solid #26354d;
-      border-radius: 12px;
-      padding: 15px;
-      margin-top: 15px;
-      line-height: 1.6;
-    }
-
-    .code-box {
-      margin-top: 15px;
-      padding: 15px;
-      background: #080b10;
-      border: 1px solid #303946;
-      border-radius: 10px;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      line-height: 1.7;
     }
 
     .badge {
@@ -241,8 +229,18 @@
       color: #fdba74;
     }
 
-    @media(max-width:700px) {
+    .code-box {
+      margin-top: 15px;
+      padding: 15px;
+      background: #080b10;
+      border: 1px solid #303946;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
 
+    @media(max-width:700px) {
       .container {
         padding: 15px;
       }
@@ -259,11 +257,8 @@
         flex-direction: column;
         align-items: flex-start;
       }
-
     }
-
   </style>
-
 </head>
 
 <body>
@@ -277,10 +272,7 @@
   </div>
 
 
-  <!-- ========================= -->
-  <!-- LOGIN ADMIN -->
-  <!-- ========================= -->
-
+  <!-- LOGIN -->
   <div id="loginBox" class="card">
 
     <h2>Login Admin</h2>
@@ -312,18 +304,11 @@
   </div>
 
 
-  <!-- ========================= -->
   <!-- DASHBOARD -->
-  <!-- ========================= -->
-
-  <div
-    id="dashboard"
-    class="hidden"
-  >
+  <div id="dashboard" class="hidden">
 
 
     <!-- ADMIN -->
-
     <div class="card">
 
       <h2>👋 Selamat datang</h2>
@@ -345,16 +330,12 @@
     </div>
 
 
-    <!-- ========================= -->
     <!-- STATUS PEMILIHAN -->
-    <!-- ========================= -->
-
     <div class="card">
 
       <h2>⚙️ Status Pemilihan</h2>
 
       <div>
-
         Status:
 
         <span
@@ -363,7 +344,6 @@
         >
           ...
         </span>
-
       </div>
 
       <p class="muted">
@@ -377,7 +357,6 @@
       </p>
 
       <button
-        id="openButton"
         class="success"
         onclick="openElection()"
       >
@@ -385,7 +364,6 @@
       </button>
 
       <button
-        id="closeButton"
         class="danger"
         onclick="closeElection()"
       >
@@ -400,19 +378,14 @@
     </div>
 
 
-    <!-- ========================= -->
-    <!-- IMPORT DATA PEMILIH -->
-    <!-- ========================= -->
-
+    <!-- DATA PEMILIH -->
     <div class="card">
 
       <h2>👥 Data Pemilih</h2>
 
       <p class="muted">
-        Import data siswa dan guru secara massal
-        menggunakan file Excel.
+        Upload data siswa dan guru menggunakan Excel.
       </p>
-
 
       <div class="info-box">
 
@@ -420,42 +393,35 @@
 
         <br><br>
 
-        Kolom pertama:
-        <b>nama</b>
+        Kolom 1 → <b>NAMA</b>
 
         <br>
 
-        Kolom kedua:
-        <b>kelas</b>
+        Kolom 2 → <b>KELAS</b>
 
         <br>
 
-        Kolom ketiga:
-        <b>tipe_pemilih</b>
+        Kolom 3 → <b>TIPE_PEMILIH</b>
 
         <br><br>
 
-        Untuk siswa:
-        <b>tipe_pemilih = siswa</b>
+        Contoh:
 
         <br>
 
-        Untuk guru:
-        <b>tipe_pemilih = guru</b>
+        Aldi — XII IPA 1 — Siswa
 
-        <br><br>
+        <br>
 
-        Kelas guru boleh dikosongkan.
+        Pak jajang — — Guru
 
       </div>
-
 
       <input
         id="excelFile"
         type="file"
         accept=".xlsx,.xls"
       >
-
 
       <button
         class="primary"
@@ -464,17 +430,14 @@
         📥 Baca File Excel
       </button>
 
-
       <div
         id="excelMessage"
         class="message"
       ></div>
 
-
       <div
         id="excelPreview"
       ></div>
-
 
       <button
         id="importButton"
@@ -487,16 +450,12 @@
     </div>
 
 
-    <!-- ========================= -->
     <!-- STATISTIK -->
-    <!-- ========================= -->
-
     <div class="card">
 
       <h2>📊 Statistik</h2>
 
       <div class="stats">
-
 
         <div class="stat">
 
@@ -545,16 +504,12 @@
 
         </div>
 
-
       </div>
 
     </div>
 
 
-    <!-- ========================= -->
-    <!-- HASIL SUARA -->
-    <!-- ========================= -->
-
+    <!-- HASIL -->
     <div class="card">
 
       <h2>🗳️ Hasil Suara</h2>
@@ -564,7 +519,6 @@
       </div>
 
     </div>
-
 
   </div>
 
@@ -584,12 +538,15 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_IcsnBvHUXh6q1I4nV4xTNA_vsYYxxbv";
 
-
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
+
+
+// DATA EXCEL SEMENTARA
+let excelVoters = [];
 
 
 // =====================================================
@@ -613,7 +570,6 @@ async function login() {
     document
       .getElementById("loginMessage");
 
-
   message.textContent = "";
 
 
@@ -623,16 +579,13 @@ async function login() {
       "Email dan password wajib diisi.";
 
     return;
-
   }
 
 
   const { error } =
     await supabaseClient.auth.signInWithPassword({
-
       email,
       password
-
     });
 
 
@@ -643,12 +596,10 @@ async function login() {
       error.message;
 
     return;
-
   }
 
 
   await checkAdmin();
-
 }
 
 
@@ -669,7 +620,6 @@ async function checkAdmin() {
     showLogin();
 
     return;
-
   }
 
 
@@ -689,13 +639,12 @@ async function checkAdmin() {
     document
       .getElementById("loginMessage")
       .textContent =
-      "Gagal memeriksa admin: " +
-      error.message;
+        "Gagal memeriksa admin: " +
+        error.message;
 
     await supabaseClient.auth.signOut();
 
     return;
-
   }
 
 
@@ -704,12 +653,11 @@ async function checkAdmin() {
     document
       .getElementById("loginMessage")
       .textContent =
-      "Akun ini bukan admin.";
+        "Akun ini bukan admin.";
 
     await supabaseClient.auth.signOut();
 
     return;
-
   }
 
 
@@ -732,7 +680,6 @@ async function checkAdmin() {
 
 
   await loadDashboard();
-
 }
 
 
@@ -777,7 +724,6 @@ async function loadSettings() {
         error.message;
 
     return;
-
   }
 
 
@@ -819,8 +765,7 @@ async function openElection() {
     new Date();
 
 
-  // Pemilihan dibuka selama 9 jam
-
+  // 9 JAM
   const end =
     new Date(
       start.getTime() +
@@ -857,7 +802,6 @@ async function openElection() {
         error.message;
 
     return;
-
   }
 
 
@@ -913,7 +857,6 @@ async function closeElection() {
         error.message;
 
     return;
-
   }
 
 
@@ -948,7 +891,6 @@ async function loadStatistics() {
     console.log(error);
 
     return;
-
   }
 
 
@@ -1013,7 +955,6 @@ async function loadResults() {
         error.message;
 
     return;
-
   }
 
 
@@ -1035,7 +976,6 @@ async function loadResults() {
         voteError.message;
 
     return;
-
   }
 
 
@@ -1047,78 +987,455 @@ async function loadResults() {
   resultBox.innerHTML = "";
 
 
-  candidates.forEach(candidate => {
+  candidates.forEach(
+    candidate => {
 
-    const total =
-      votes.filter(
-        vote =>
-          vote.candidate_id ===
-          candidate.id
-      ).length;
-
-
-    const div =
-      document.createElement("div");
+      const total =
+        votes.filter(
+          vote =>
+            vote.candidate_id ===
+            candidate.id
+        ).length;
 
 
-    div.className =
-      "candidate";
+      const div =
+        document.createElement("div");
 
 
-    div.innerHTML = `
+      div.className =
+        "candidate";
 
-      <div>
 
-        <div class="candidate-name">
+      div.innerHTML = `
 
-          No. ${candidate.number}
+        <div>
 
-          —
-          ${escapeHtml(
-            candidate.chairman_name
-          )}
+          <div class="candidate-name">
 
-          &
+            No. ${candidate.number}
 
-          ${escapeHtml(
-            candidate.vice_name
-          )}
+            —
+
+            ${escapeHtml(
+              candidate.chairman_name
+            )}
+
+            &
+
+            ${escapeHtml(
+              candidate.vice_name
+            )}
+
+          </div>
+
+          <div class="muted">
+
+            ${escapeHtml(
+              candidate.vision || ""
+            )}
+
+          </div>
 
         </div>
 
 
-        <div class="muted">
+        <div class="votes">
 
-          ${escapeHtml(
-            candidate.vision || ""
-          )}
+          ${total} suara
 
         </div>
 
-      </div>
+      `;
 
 
-      <div class="votes">
+      resultBox.appendChild(div);
 
-        ${total} suara
+    }
+  );
+
+}
+
+
+// =====================================================
+// BACA EXCEL
+// =====================================================
+
+async function previewExcel() {
+
+  const file =
+    document
+      .getElementById("excelFile")
+      .files[0];
+
+
+  const message =
+    document
+      .getElementById("excelMessage");
+
+
+  const preview =
+    document
+      .getElementById("excelPreview");
+
+
+  const importButton =
+    document
+      .getElementById("importButton");
+
+
+  message.textContent = "";
+
+  message.classList.remove(
+    "success-message"
+  );
+
+  preview.innerHTML = "";
+
+  importButton.classList.add(
+    "hidden"
+  );
+
+
+  if (!file) {
+
+    message.textContent =
+      "Pilih file Excel terlebih dahulu.";
+
+    return;
+  }
+
+
+  try {
+
+    // Baca file
+
+    const buffer =
+      await file.arrayBuffer();
+
+
+    const workbook =
+      XLSX.read(
+        buffer,
+        {
+          type: "array"
+        }
+      );
+
+
+    // Ambil sheet pertama
+
+    const sheet =
+      workbook.Sheets[
+        workbook.SheetNames[0]
+      ];
+
+
+    // Excel menjadi array
+
+    const rows =
+      XLSX.utils.sheet_to_json(
+        sheet,
+        {
+          header: 1,
+          defval: ""
+        }
+      );
+
+
+    if (rows.length < 2) {
+
+      message.textContent =
+        "Excel tidak memiliki data.";
+
+      return;
+    }
+
+
+    // =================================================
+    // HEADER
+    // =================================================
+
+    const headers =
+      rows[0].map(
+        value =>
+          String(value)
+            .trim()
+            .toUpperCase()
+            .replace(/\s+/g, "_")
+      );
+
+
+    const namaIndex =
+      headers.indexOf("NAMA");
+
+
+    const kelasIndex =
+      headers.indexOf("KELAS");
+
+
+    const tipeIndex =
+      headers.indexOf(
+        "TIPE_PEMILIH"
+      );
+
+
+    if (
+      namaIndex === -1 ||
+      kelasIndex === -1 ||
+      tipeIndex === -1
+    ) {
+
+      message.textContent =
+        "Header Excel harus: NAMA | KELAS | TIPE_PEMILIH";
+
+      return;
+    }
+
+
+    excelVoters = [];
+
+
+    // =================================================
+    // DATA PEMILIH
+    // =================================================
+
+    for (
+      let i = 1;
+      i < rows.length;
+      i++
+    ) {
+
+      const row =
+        rows[i];
+
+
+      const nama =
+        String(
+          row[namaIndex] || ""
+        ).trim();
+
+
+      const kelas =
+        String(
+          row[kelasIndex] || ""
+        ).trim();
+
+
+      const tipe =
+        String(
+          row[tipeIndex] || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+      // Lewati baris kosong
+
+      if (!nama) {
+
+        continue;
+      }
+
+
+      // Validasi tipe
+
+      if (
+        tipe !== "siswa" &&
+        tipe !== "guru"
+      ) {
+
+        message.textContent =
+          `Baris ${i + 1}: tipe harus Siswa atau Guru.`;
+
+        excelVoters = [];
+
+        return;
+      }
+
+
+      // Siswa wajib punya kelas
+
+      if (
+        tipe === "siswa" &&
+        !kelas
+      ) {
+
+        message.textContent =
+          `Baris ${i + 1}: siswa wajib memiliki kelas.`;
+
+        excelVoters = [];
+
+        return;
+      }
+
+
+      excelVoters.push({
+
+        nama: nama,
+
+        kelas:
+          tipe === "guru"
+            ? null
+            : kelas,
+
+        tipe_pemilih:
+          tipe
+
+      });
+
+    }
+
+
+    // =================================================
+    // HASIL PEMBACAAN
+    // =================================================
+
+    if (
+      excelVoters.length === 0
+    ) {
+
+      message.textContent =
+        "Tidak ada data pemilih yang valid.";
+
+      return;
+    }
+
+
+    // =================================================
+    // PREVIEW
+    // =================================================
+
+    let html = `
+
+      <p class="muted">
+
+        Ditemukan
+
+        <b>
+          ${excelVoters.length}
+        </b>
+
+        pemilih.
+
+      </p>
+
+
+      <div class="preview-wrapper">
+
+        <table class="preview-table">
+
+          <thead>
+
+            <tr>
+
+              <th>No.</th>
+
+              <th>Nama</th>
+
+              <th>Kelas</th>
+
+              <th>Tipe</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+    `;
+
+
+    excelVoters.forEach(
+      (voter, index) => {
+
+        const badgeClass =
+          voter.tipe_pemilih === "siswa"
+            ? "badge-siswa"
+            : "badge-guru";
+
+
+        html += `
+
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                voter.nama
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                voter.kelas || "-"
+              )}
+            </td>
+
+            <td>
+
+              <span
+                class="badge ${badgeClass}"
+              >
+
+                ${escapeHtml(
+                  voter.tipe_pemilih
+                )}
+
+              </span>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    );
+
+
+    html += `
+
+          </tbody>
+
+        </table>
 
       </div>
 
     `;
 
 
-    resultBox.appendChild(div);
+    preview.innerHTML =
+      html;
 
-  });
+
+    importButton.classList.remove(
+      "hidden"
+    );
+
+
+    message.classList.add(
+      "success-message"
+    );
+
+
+    message.textContent =
+      "Excel berhasil dibaca. Data siap diimport.";
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    message.textContent =
+      "Gagal membaca Excel: " +
+      error.message;
+
+  }
 
 }
-
-
-// =====================================================
-// EXCEL IMPORT
-// =====================================================
-
-let excelVoters = [];
 
 
 // =====================================================
@@ -1202,338 +1519,16 @@ async function generateUniqueCode() {
 
 
 // =====================================================
-// BACA EXCEL
-// =====================================================
-
-async function previewExcel() {
-
-  const file =
-    document
-      .getElementById("excelFile")
-      .files[0];
-
-
-  const message =
-    document
-      .getElementById("excelMessage");
-
-
-  const preview =
-    document
-      .getElementById("excelPreview");
-
-
-  const importButton =
-    document
-      .getElementById("importButton");
-
-
-  message.textContent = "";
-
-  message.classList.remove(
-    "success-message"
-  );
-
-
-  preview.innerHTML = "";
-
-
-  importButton.classList.add(
-    "hidden"
-  );
-
-
-  if (!file) {
-
-    message.textContent =
-      "Pilih file Excel terlebih dahulu.";
-
-    return;
-
-  }
-
-
-  try {
-
-    const buffer =
-      await file.arrayBuffer();
-
-
-    const workbook =
-      XLSX.read(
-        buffer,
-        {
-          type: "array"
-        }
-      );
-
-
-    const firstSheet =
-      workbook.Sheets[
-        workbook.SheetNames[0]
-      ];
-
-
-    const rows =
-      XLSX.utils.sheet_to_json(
-        firstSheet,
-        {
-          defval: ""
-        }
-      );
-
-
-    if (!rows.length) {
-
-      message.textContent =
-        "File Excel tidak memiliki data.";
-
-      return;
-
-    }
-
-
-    excelVoters = [];
-
-
-    for (
-      let i = 0;
-      i < rows.length;
-      i++
-    ) {
-
-      const row =
-        rows[i];
-
-
-      const nama =
-        String(
-          row.nama ??
-          row.Nama ??
-          ""
-        ).trim();
-
-
-      const kelas =
-        String(
-          row.kelas ??
-          row.Kelas ??
-          ""
-        ).trim();
-
-
-      const tipe =
-        String(
-          row.tipe_pemilih ??
-          row.Tipe_Pemilih ??
-          row.tipe ??
-          ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-      if (!nama) {
-
-        continue;
-
-      }
-
-
-      if (
-        tipe !== "siswa" &&
-        tipe !== "guru"
-      ) {
-
-        message.textContent =
-          `Baris ${i + 2}: tipe_pemilih harus "siswa" atau "guru".`;
-
-        excelVoters = [];
-
-        return;
-
-      }
-
-
-      if (
-        tipe === "siswa" &&
-        !kelas
-      ) {
-
-        message.textContent =
-          `Baris ${i + 2}: siswa wajib memiliki kelas.`;
-
-        excelVoters = [];
-
-        return;
-
-      }
-
-
-      excelVoters.push({
-
-        nama,
-
-        kelas:
-          tipe === "guru"
-            ? null
-            : kelas,
-
-        tipe_pemilih:
-          tipe
-
-      });
-
-    }
-
-
-    if (!excelVoters.length) {
-
-      message.textContent =
-        "Tidak ada data pemilih yang valid.";
-
-      return;
-
-    }
-
-
-    // =================================
-    // PREVIEW
-    // =================================
-
-    let html = `
-
-      <p class="muted">
-
-        <b>
-          ${excelVoters.length}
-        </b>
-
-        pemilih siap diimport.
-
-      </p>
-
-
-      <div class="preview-wrapper">
-
-        <table class="preview-table">
-
-          <thead>
-
-            <tr>
-
-              <th>No.</th>
-
-              <th>Nama</th>
-
-              <th>Kelas</th>
-
-              <th>Tipe</th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-    `;
-
-
-    excelVoters.forEach(
-      (voter, index) => {
-
-        const badgeClass =
-          voter.tipe_pemilih ===
-          "siswa"
-            ? "badge-siswa"
-            : "badge-guru";
-
-
-        html += `
-
-          <tr>
-
-            <td>
-              ${index + 1}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                voter.nama
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                voter.kelas || "-"
-              )}
-            </td>
-
-            <td>
-
-              <span
-                class="badge ${badgeClass}"
-              >
-
-                ${escapeHtml(
-                  voter.tipe_pemilih
-                )}
-
-              </span>
-
-            </td>
-
-          </tr>
-
-        `;
-
-      }
-    );
-
-
-    html += `
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    `;
-
-
-    preview.innerHTML =
-      html;
-
-
-    importButton.classList.remove(
-      "hidden"
-    );
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    message.textContent =
-      "Gagal membaca Excel: " +
-      error.message;
-
-  }
-
-}
-
-
-// =====================================================
-// IMPORT PEMILIH KE SUPABASE
+// IMPORT KE DATABASE
 // =====================================================
 
 async function importVoters() {
 
-  if (!excelVoters.length) {
+  if (
+    !excelVoters.length
+  ) {
 
     return;
-
   }
 
 
@@ -1546,7 +1541,6 @@ async function importVoters() {
   if (!yakin) {
 
     return;
-
   }
 
 
@@ -1578,9 +1572,7 @@ async function importVoters() {
     const rows = [];
 
 
-    // =================================
-    // BUAT KODE SATU PER SATU
-    // =================================
+    // Buat kode setiap pemilih
 
     for (
       const voter of excelVoters
@@ -1596,14 +1588,8 @@ async function importVoters() {
           "V-" +
           crypto
             .randomUUID()
-            .replaceAll(
-              "-",
-              ""
-            )
-            .slice(
-              0,
-              12
-            ),
+            .replaceAll("-", "")
+            .slice(0, 12),
 
         name:
           voter.nama,
@@ -1647,9 +1633,9 @@ async function importVoters() {
     }
 
 
-    // =================================
+    // =================================================
     // BERHASIL
-    // =================================
+    // =================================================
 
     message.classList.add(
       "success-message"
@@ -1657,13 +1643,13 @@ async function importVoters() {
 
 
     message.textContent =
-      `Berhasil memasukkan ${rows.length} pemilih.`;
+      `✅ Berhasil memasukkan ${rows.length} pemilih.`;
 
 
 
-    // =================================
+    // =================================================
     // TAMPILKAN KODE
-    // =================================
+    // =================================================
 
     let codeText =
       "DAFTAR KODE PEMILIH\n\n";
@@ -1674,8 +1660,8 @@ async function importVoters() {
 
         codeText +=
           `${index + 1}. ` +
-          `${row.name} ` +
-          `→ ${row.voter_code}\n`;
+          `${row.name} → ` +
+          `${row.voter_code}\n`;
 
       }
     );
@@ -1758,16 +1744,12 @@ function showLogin() {
 
   document
     .getElementById("loginBox")
-    .classList.remove(
-      "hidden"
-    );
+    .classList.remove("hidden");
 
 
   document
     .getElementById("dashboard")
-    .classList.add(
-      "hidden"
-    );
+    .classList.add("hidden");
 
 }
 

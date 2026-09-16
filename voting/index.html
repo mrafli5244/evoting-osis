@@ -421,6 +421,14 @@ async function loadCandidates() {
 
 async function pilihKandidat(candidateId) {
 
+console.log("SUPABASE ROLE TEST");
+
+const {
+  data: sessionData
+} = await supabaseClient.auth.getSession();
+
+console.log("SESSION:", sessionData);
+
   const voterId =
     sessionStorage.getItem("voter_id");
 

@@ -22,7 +22,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1100px;
       margin: auto;
     }
 
@@ -48,8 +48,11 @@
 
     .candidates {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(290px, 1fr)
+      );
+      gap: 20px;
     }
 
     .candidate {
@@ -57,12 +60,17 @@
       border: 1px solid #29313c;
       border-radius: 18px;
       overflow: hidden;
-      text-align: center;
+      transition: .2s;
+    }
+
+    .candidate:hover {
+      transform: translateY(-3px);
+      border-color: #3b82f6;
     }
 
     .photo {
       width: 100%;
-      height: 280px;
+      height: 300px;
       background: #171d25;
       display: flex;
       align-items: center;
@@ -77,31 +85,49 @@
     }
 
     .candidate-info {
-      padding: 20px;
+      padding: 22px;
     }
 
     .number {
       color: #60a5fa;
       font-weight: bold;
-      margin-bottom: 8px;
+      font-size: 15px;
+      margin-bottom: 10px;
     }
 
     .names {
-      font-size: 21px;
+      font-size: 22px;
       font-weight: bold;
       line-height: 1.4;
+      text-align: center;
     }
 
-    .vision {
-      color: #9ca3af;
-      margin-top: 12px;
-      line-height: 1.5;
+    .section {
+      margin-top: 18px;
+      text-align: left;
+    }
+
+    .section-title {
+      font-weight: bold;
+      color: #60a5fa;
+      margin-bottom: 7px;
+    }
+
+    .vision,
+    .mission {
+      color: #cbd5e1;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .mission {
+      white-space: pre-line;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      margin-top: 18px;
+      margin-top: 20px;
       border: none;
       border-radius: 10px;
       background: #2563eb;
@@ -123,6 +149,12 @@
 
     .error {
       color: #fca5a5;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: #9ca3af;
     }
   </style>
 </head>
@@ -153,6 +185,10 @@
 
 <script>
 
+// =====================================================
+// SUPABASE
+// =====================================================
+
 const SUPABASE_URL =
   "https://uctbslkumtrlwbonvutz.supabase.co";
 
@@ -167,7 +203,7 @@ const supabaseClient =
 
 
 // =====================================================
-// AMBIL DATA PEMILIH DARI SESSION
+// AMBIL SESSION PEMILIH
 // =====================================================
 
 const voterId =
@@ -185,8 +221,10 @@ if (!voterId) {
 
 } else {
 
-  document.getElementById("voterName")
-    .textContent = voterName || "-";
+  document
+    .getElementById("voterName")
+    .textContent =
+      voterName || "-";
 
   loadCandidates();
 
@@ -213,7 +251,7 @@ async function loadCandidates() {
     await supabaseClient
       .from("candidates")
       .select(
-        "id,number,chairman_name,vice_name,vision,photo_url"
+        "id,number,chairman_name,vice_name,vision,mission,photo_url"
       )
       .eq("active", true)
       .order("number");
@@ -254,9 +292,13 @@ async function loadCandidates() {
       "candidate";
 
 
+    // =================================================
+    // FOTO
+    // =================================================
+
     let photoHTML = `
       <div class="photo">
-        Foto kandidat belum tersedia
+        📷 Foto kandidat belum tersedia
       </div>
     `;
 
@@ -267,13 +309,65 @@ async function loadCandidates() {
         <div class="photo">
           <img
             src="${escapeHtml(candidate.photo_url)}"
-            alt="Foto kandidat"
+            alt="Foto ${escapeHtml(candidate.chairman_name)} dan ${escapeHtml(candidate.vice_name)}"
           >
         </div>
       `;
 
     }
 
+
+    // =================================================
+    // VISI
+    // =================================================
+
+    const visionHTML =
+      candidate.vision
+      ?
+      `
+        <div class="section">
+
+          <div class="section-title">
+            🎯 VISI
+          </div>
+
+          <div class="vision">
+            ${escapeHtml(candidate.vision)}
+          </div>
+
+        </div>
+      `
+      :
+      "";
+
+
+    // =================================================
+    // MISI
+    // =================================================
+
+    const missionHTML =
+      candidate.mission
+      ?
+      `
+        <div class="section">
+
+          <div class="section-title">
+            📌 MISI
+          </div>
+
+          <div class="mission">
+            ${escapeHtml(candidate.mission)}
+          </div>
+
+        </div>
+      `
+      :
+      "";
+
+
+    // =================================================
+    // CARD
+    // =================================================
 
     card.innerHTML = `
 
@@ -282,29 +376,31 @@ async function loadCandidates() {
       <div class="candidate-info">
 
         <div class="number">
-          NOMOR ${candidate.number}
+          NOMOR ${escapeHtml(candidate.number)}
         </div>
 
         <div class="names">
+
           ${escapeHtml(candidate.chairman_name)}
+
           <br>
+
           &
+
           <br>
+
           ${escapeHtml(candidate.vice_name)}
+
         </div>
 
-        ${
-          candidate.vision
-            ? `<div class="vision">
-                ${escapeHtml(candidate.vision)}
-              </div>`
-            : ""
-        }
+        ${visionHTML}
+
+        ${missionHTML}
 
         <button
           onclick="pilihKandidat('${candidate.id}')"
         >
-          PILIH KANDIDAT
+          🗳️ PILIH KANDIDAT
         </button>
 
       </div>
@@ -359,7 +455,7 @@ function escapeHtml(text) {
     document.createElement("div");
 
   div.textContent =
-    text || "";
+    text ?? "";
 
   return div.innerHTML;
 

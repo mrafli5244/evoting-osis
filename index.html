@@ -252,13 +252,21 @@ const SUPABASE_URL =
   "https://uctbslkumtrlwbonvutz.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_IcsnBvHUXh6q1I1nV4xTNA_vsYYxxbv";
+  "sb_publishable_IcsnBvHUXh6q1I4nV4xTNA_vsYYxxbv";
 
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
+
+
+// =====================================================
+// DEBUG KONEKSI
+// =====================================================
+
+console.log("SUPABASE TERHUBUNG");
+console.log("PROJECT:", SUPABASE_URL);
 
 
 // =====================================================
@@ -292,6 +300,11 @@ async function checkElectionStatus() {
 
 
   if (error) {
+
+    console.error(
+      "SETTINGS ERROR:",
+      error
+    );
 
     statusBox.textContent =
       "Status pemilihan tidak dapat dibaca.";
@@ -408,7 +421,7 @@ async function loginPemilih() {
   try {
 
     // ==============================
-    // CEK STATUS PEMILIHAN
+    // CEK STATUS
     // ==============================
 
     const {
@@ -429,6 +442,12 @@ async function loginPemilih() {
       throw settingsError;
 
     }
+
+
+    console.log(
+      "SETTINGS:",
+      settings
+    );
 
 
     const now =
@@ -470,6 +489,15 @@ async function loginPemilih() {
     // VERIFIKASI PEMILIH
     // ==============================
 
+    console.log(
+      "MENGIRIM RPC:",
+      {
+        p_name: nama,
+        p_kelas: kelas
+      }
+    );
+
+
     const {
       data: voterData,
       error: voterError
@@ -483,6 +511,21 @@ async function loginPemilih() {
       );
 
 
+    // ==============================
+    // DEBUG RPC
+    // ==============================
+
+    console.log(
+      "RPC RESULT:",
+      voterData
+    );
+
+    console.log(
+      "RPC ERROR:",
+      voterError
+    );
+
+
     if (voterError) {
 
       throw voterError;
@@ -491,7 +534,7 @@ async function loginPemilih() {
 
 
     // ==============================
-    // AMBIL PEMILIH
+    // AMBIL DATA PEMILIH
     // ==============================
 
     const voter =
@@ -499,6 +542,12 @@ async function loginPemilih() {
       voterData.length > 0
         ? voterData[0]
         : null;
+
+
+    console.log(
+      "VOTER TERPILIH:",
+      voter
+    );
 
 
     // ==============================
@@ -599,7 +648,11 @@ async function loginPemilih() {
 
   catch (error) {
 
-    console.error(error);
+    console.error(
+      "LOGIN ERROR:",
+      error
+    );
+
 
     message.textContent =
       "Terjadi kesalahan: " +

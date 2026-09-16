@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — E-Voting OSIS</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b0d10;color:#f5f5f5;font-family:system-ui,sans-serif}
+main{max-width:900px;margin:auto;padding:28px 18px}.card{background:#12161b;border:1px solid #292f37;border-radius:16px;padding:22px;margin:16px 0}
+input,select{width:100%;padding:13px;margin:7px 0;background:#0c0f13;color:#fff;border:1px solid #303640;border-radius:9px}
+button{padding:13px 16px;border:0;border-radius:9px;font-weight:800;cursor:pointer;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.stat{font-size:28px;font-weight:800}.muted{opacity:.65}.msg{min-height:22px}
+.hidden{display:none}.danger{border-left:4px solid #ddd}
+</style>
+</head>
+<body><main>
+<h1>Dashboard Admin</h1><p class="muted">E-Voting Ketua & Wakil Ketua OSIS</p>
+
+<section id="login" class="card">
+<h2>Login Admin</h2>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()">Masuk</button><p id="loginMsg" class="msg"></p>
+</section>
+
+<section id="dashboard" class="hidden">
+<div class="grid">
+<div class="card"><div class="muted">Pemilih</div><div id="voters" class="stat">—</div></div>
+<div class="card"><div class="muted">Sudah memilih</div><div id="voted" class="stat">—</div></div>
+<div class="card"><div class="muted">Suara masuk</div><div id="votes" class="stat">—</div></div>
+</div>
+
+<section class="card">
+<h2>⚙️ Pengaturan Pemilihan</h2>
+<label>Nama pemilihan</label><input id="election_name">
+<label>Mulai</label><input id="start_at" type="datetime-local">
+<label>Selesai</label><input id="end_at" type="datetime-local">
+<label>Waktu per siswa (menit)</label><input id="minutes" type="number" min="1" max="30">
+<label>Status</label><select id="status"><option value="draft">Draft</option><option value="open">Buka</option><option value="paused">Jeda</option><option value="closed">Tutup</option></select>
+<label>Hasil</label><select id="results_mode"><option value="hidden">Sembunyikan</option><option value="after_closed">Setelah ditutup</option><option value="manual">Manual</option></select>
+<button onclick="saveSettings()">Simpan Pengaturan</button>
+<p id="settingsMsg" class="msg"></p>
+</section>
+
+<section class="card">
+<h2>📊 Perolehan Suara</h2><div id="candidateStats" class="grid"></div>
+</section>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://uctbslkumtrlwbonvutz.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_IcsnBvHUXh6q1I4nV4xTNA_vsYYxxbv";
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
+async function login(){
+ const m=document.querySelector("#loginMsg");m.textContent="Memeriksa...";
+ const {data,error}=await client.auth.signInWithPassword({
+   email:document.querySelector("#username").value,
+   password:document.querySelector("#password").value
+ });
+ if(error){m.textContent="Login gagal: "+error.message;return}
+ const {data:p}=await client.from("admin_profiles").select("display_name,role").eq("user_id",data.user.id).maybeSingle();
+ if(!p){await client.auth.signOut();m.textContent="Akun ini bukan admin.";return}
+ document.querySelector("#login").classList.add("hidden");document.querySelector("#dashboard").classList.remove("hidden");
+ await loadAll();
+}
+async function loadAll(){await loadSettings();await loadStats()}
+function toLocal(v){if(!v)return"";return new Date(v).toISOString().slice(0,16)}
+async function loadSettings(){
+ const {data,error}=await client.from("settings").select("*").eq("id",1).single();
+ if(error){document.querySelector("#settingsMsg").textContent=error.message;return}
+ election_name.value=data.election_name;start_at.value=toLocal(data.start_at);end_at.value=toLocal(data.end_at);
+ minutes.value=data.minutes_per_voter;status.value=data.status;results_mode.value=data.results_mode;
+}
+async function saveSettings(){
+ const {error}=await client.from("settings").update({
+ election_name:election_name.value,start_at:start_at.value?new Date(start_at.value).toISOString():null,
+ end_at:end_at.value?new Date(end_at.value).toISOString():null,
+ minutes_per_voter:Number(minutes.value),status:status.value,results_mode:results_mode.value,updated_at:new Date().toISOString()
+ }).eq("id",1);
+ settingsMsg.textContent=error?error.message:"Pengaturan tersimpan ✓"; if(!error) await loadStats();
+}
+async function loadStats(){
+ const {count:total}=await client.from("voters").select("*",{count:"exact",head:true});
+ const {count:voted}=await client.from("voters").select("*",{count:"exact",head:true}).eq("has_voted",true);
+ const {count:vc}=await client.from("votes").select("*",{count:"exact",head:true});
+ voters.textContent=total??0;document.querySelector("#voted").textContent=voted??0;document.querySelector("#votes").textContent=vc??0;
+ const {data:cs,error}=await client.from("candidates").select("id,number,chairman_name,vice_name").eq("active",true).order("number");
+ if(error){candidateStats.textContent=error.message;return}
+ const el=document.querySelector("#candidateStats");el.innerHTML="";
+ for(const c of cs){
+   const {count}=await client.from("votes").select("*",{count:"exact",head:true}).eq("candidate_id",c.id);
+   el.innerHTML+=`<div class="card"><div class="muted">Nomor ${c.number}</div><b>${esc(c.chairman_name)} & ${esc(c.vice_name)}</b><div class="stat">${count??0}</div></div>`;
+ }
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+</script></body></html>

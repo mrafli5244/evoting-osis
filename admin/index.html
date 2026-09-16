@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
@@ -9,53 +10,68 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 *{
   box-sizing:border-box;
 }
 
 body{
   margin:0;
-  background:#0b0d10;
+  background:#080b10;
   color:#f5f5f5;
-  font-family:system-ui,sans-serif;
+  font-family:Arial,sans-serif;
 }
 
 main{
-  max-width:1000px;
+  max-width:1100px;
   margin:auto;
-  padding:28px 18px;
+  padding:25px 15px;
 }
 
 .card{
-  background:#12161b;
-  border:1px solid #292f37;
-  border-radius:16px;
+  background:#11161d;
+  border:1px solid #29313c;
+  border-radius:18px;
   padding:22px;
   margin:16px 0;
+}
+
+h1,h2{
+  margin-top:0;
+}
+
+.muted{
+  color:#9ca3af;
+}
+
+.hidden{
+  display:none;
+}
+
+.msg{
+  min-height:22px;
+  margin-top:12px;
 }
 
 input,
 select{
   width:100%;
   padding:13px;
-  margin:7px 0;
-  background:#0c0f13;
-  color:#fff;
-  border:1px solid #303640;
-  border-radius:9px;
+  margin:7px 0 14px;
+  background:#080b10;
+  color:white;
+  border:1px solid #394351;
+  border-radius:10px;
+  font-size:15px;
 }
 
 button{
-  padding:13px 16px;
   border:0;
-  border-radius:9px;
-  font-weight:800;
+  border-radius:10px;
+  padding:13px 16px;
+  font-weight:bold;
   cursor:pointer;
-  margin-top:8px;
-}
-
-button:hover{
-  opacity:.9;
+  color:white;
 }
 
 button:disabled{
@@ -65,58 +81,102 @@ button:disabled{
 
 .primary{
   background:#2563eb;
-  color:white;
 }
 
 .success{
   background:#16a34a;
-  color:white;
 }
 
 .danger{
   background:#dc2626;
-  color:white;
 }
 
 .logout{
   background:#272d36;
-  color:white;
 }
 
 .grid{
   display:grid;
   grid-template-columns:
-  repeat(auto-fit,minmax(200px,1fr));
-  gap:12px;
+    repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
+
+.stat-card{
+  background:#11161d;
+  border:1px solid #29313c;
+  border-radius:16px;
+  padding:20px;
 }
 
 .stat{
-  font-size:28px;
+  font-size:32px;
   font-weight:800;
+  margin-top:7px;
 }
 
-.muted{
-  opacity:.65;
+.results{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
-.msg{
-  min-height:22px;
+.result{
+  background:#171d25;
+  border:1px solid #303844;
+  border-radius:14px;
+  padding:18px;
 }
 
-.hidden{
-  display:none;
+.result-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+.result-number{
+  color:#60a5fa;
+  font-weight:bold;
+}
+
+.result-name{
+  font-size:18px;
+  font-weight:bold;
+  margin-top:6px;
+}
+
+.vote-count{
+  font-size:24px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.bar{
+  height:12px;
+  background:#080b10;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:14px;
+}
+
+.bar-fill{
+  height:100%;
+  background:#2563eb;
+  width:0%;
+  transition:.4s;
 }
 
 .candidates{
   display:grid;
   grid-template-columns:
-  repeat(auto-fit,minmax(280px,1fr));
+    repeat(auto-fit,minmax(280px,1fr));
   gap:18px;
 }
 
 .candidate{
-  background:#171b21;
-  border:1px solid #303640;
+  background:#171d25;
+  border:1px solid #303844;
   border-radius:15px;
   padding:18px;
 }
@@ -126,7 +186,7 @@ button:disabled{
   height:260px;
   object-fit:cover;
   border-radius:12px;
-  background:#0c0f13;
+  background:#080b10;
   display:block;
   margin-bottom:15px;
 }
@@ -135,7 +195,7 @@ button:disabled{
   width:100%;
   height:260px;
   border-radius:12px;
-  background:#0c0f13;
+  background:#080b10;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -150,9 +210,9 @@ button:disabled{
 
 .candidate-name{
   font-size:20px;
-  font-weight:800;
-  margin-top:8px;
+  font-weight:bold;
   line-height:1.4;
+  margin-top:8px;
 }
 
 .file-input{
@@ -162,105 +222,18 @@ button:disabled{
 .upload-button{
   width:100%;
   background:#2563eb;
-  color:white;
+  margin-top:5px;
 }
 
 .delete-button{
   width:100%;
   background:#dc2626;
-  color:white;
+  margin-top:8px;
 }
 
-
-/* =====================================================
-   HASIL SUARA
-===================================================== */
-
-.result-item{
-  background:#171b21;
-  border:1px solid #303640;
-  border-radius:14px;
-  padding:18px;
-  margin-bottom:12px;
-}
-
-.result-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-}
-
-.result-number{
-  color:#60a5fa;
-  font-weight:800;
-  font-size:15px;
-}
-
-.result-name{
-  font-size:18px;
-  font-weight:800;
-  line-height:1.4;
-  margin-top:6px;
-}
-
-.result-votes{
-  font-size:30px;
-  font-weight:900;
-  white-space:nowrap;
-}
-
-.result-votes span{
-  font-size:14px;
-  opacity:.6;
-}
-
-.result-bar{
-  width:100%;
-  height:10px;
-  background:#0c0f13;
-  border-radius:20px;
-  overflow:hidden;
+.refresh{
   margin-top:15px;
 }
-
-.result-fill{
-  height:100%;
-  background:#2563eb;
-  border-radius:20px;
-  transition:width .4s ease;
-}
-
-.result-percent{
-  font-size:13px;
-  opacity:.6;
-  margin-top:7px;
-}
-
-.total-result{
-  text-align:center;
-  padding:15px;
-  margin-bottom:15px;
-  background:#0c0f13;
-  border-radius:12px;
-  color:#9ca3af;
-}
-
-.refresh-button{
-  width:100%;
-}
-
-.refresh-status{
-  text-align:center;
-  font-size:13px;
-  opacity:.6;
-  margin-top:10px;
-}
-
-
-/* =====================================================
-   RESPONSIVE
-===================================================== */
 
 @media(max-width:600px){
 
@@ -272,16 +245,15 @@ button:disabled{
     padding:18px;
   }
 
-  .result-header{
+  .result-top{
+    flex-direction:column;
     align-items:flex-start;
   }
 
-  .result-votes{
-    font-size:25px;
-  }
-
 }
+
 </style>
+
 </head>
 
 <body>
@@ -295,16 +267,20 @@ E-Voting Ketua & Wakil Ketua OSIS
 </p>
 
 
-<!-- =====================================================
+<!-- ==================================================
      LOGIN
-===================================================== -->
+=================================================== -->
 
-<section id="login" class="card">
+<section
+  id="login"
+  class="card"
+>
 
-<h2>Login Admin</h2>
+<h2>🔐 Login Admin</h2>
 
 <input
   id="username"
+  type="email"
   placeholder="Email admin"
   autocomplete="username"
 >
@@ -324,16 +300,22 @@ E-Voting Ketua & Wakil Ketua OSIS
 Masuk
 </button>
 
-<p id="loginMsg" class="msg"></p>
+<p
+  id="loginMsg"
+  class="msg"
+></p>
 
 </section>
 
 
-<!-- =====================================================
+<!-- ==================================================
      DASHBOARD
-===================================================== -->
+=================================================== -->
 
-<section id="dashboard" class="hidden">
+<section
+  id="dashboard"
+  class="hidden"
+>
 
 
 <!-- ADMIN -->
@@ -342,7 +324,10 @@ Masuk
 
 <h2>👋 Dashboard Admin</h2>
 
-<p id="adminName" class="muted">
+<p
+  id="adminName"
+  class="muted"
+>
 Memuat...
 </p>
 
@@ -356,45 +341,54 @@ Keluar
 </div>
 
 
-<!-- =====================================================
+<!-- ==================================================
      STATISTIK
-===================================================== -->
+=================================================== -->
 
 <div class="grid">
 
-<div class="card">
+<div class="stat-card">
 
 <div class="muted">
-Total Pemilih
+👥 Total Pemilih
 </div>
 
-<div id="voters" class="stat">
+<div
+  id="voters"
+  class="stat"
+>
 —
 </div>
 
 </div>
 
 
-<div class="card">
+<div class="stat-card">
 
 <div class="muted">
-Sudah Memilih
+✅ Sudah Memilih
 </div>
 
-<div id="voted" class="stat">
+<div
+  id="voted"
+  class="stat"
+>
 —
 </div>
 
 </div>
 
 
-<div class="card">
+<div class="stat-card">
 
 <div class="muted">
-Suara Masuk
+🗳️ Suara Masuk
 </div>
 
-<div id="votes" class="stat">
+<div
+  id="votes"
+  class="stat"
+>
 —
 </div>
 
@@ -403,9 +397,9 @@ Suara Masuk
 </div>
 
 
-<!-- =====================================================
+<!-- ==================================================
      HASIL SUARA
-===================================================== -->
+=================================================== -->
 
 <section class="card">
 
@@ -415,42 +409,40 @@ Suara Masuk
 Perolehan suara setiap pasangan kandidat.
 </p>
 
-<div id="results">
-
-⏳ Memuat hasil...
-
+<div
+  id="results"
+  class="results"
+>
+Memuat hasil...
 </div>
 
 <button
-  id="refreshResultsButton"
-  class="primary refresh-button"
+  class="primary refresh"
   onclick="loadResults()"
 >
 🔄 Refresh Hasil
 </button>
 
-<div
-  id="refreshStatus"
-  class="refresh-status"
->
-</div>
-
 </section>
 
 
-<!-- =====================================================
+<!-- ==================================================
      PENGATURAN
-===================================================== -->
+=================================================== -->
 
 <section class="card">
 
 <h2>⚙️ Pengaturan Pemilihan</h2>
 
+
 <label>
 Nama pemilihan
 </label>
 
-<input id="election_name">
+<input
+  id="election_name"
+  type="text"
+>
 
 
 <label>
@@ -535,7 +527,7 @@ Manual
   class="success"
   onclick="saveSettings()"
 >
-Simpan Pengaturan
+💾 Simpan Pengaturan
 </button>
 
 <p
@@ -546,9 +538,9 @@ Simpan Pengaturan
 </section>
 
 
-<!-- =====================================================
+<!-- ==================================================
      FOTO KANDIDAT
-===================================================== -->
+=================================================== -->
 
 <section class="card">
 
@@ -556,7 +548,6 @@ Simpan Pengaturan
 
 <p class="muted">
 Upload foto masing-masing pasangan kandidat.
-Foto akan otomatis muncul di halaman voting.
 </p>
 
 <div
@@ -605,38 +596,27 @@ window.supabase.createClient(
 async function login(){
 
   const msg =
-    document.getElementById(
-      "loginMsg"
-    );
+    document.getElementById("loginMsg");
 
   const button =
-    document.getElementById(
-      "loginButton"
-    );
-
-
-  msg.textContent =
-    "Memeriksa...";
-
-  button.disabled =
-    true;
+    document.getElementById("loginButton");
 
 
   const email =
     document
-      .getElementById(
-        "username"
-      )
+      .getElementById("username")
       .value
       .trim();
 
 
   const password =
     document
-      .getElementById(
-        "password"
-      )
+      .getElementById("password")
       .value;
+
+
+  msg.textContent =
+    "Memeriksa...";
 
 
   if(!email || !password){
@@ -644,20 +624,22 @@ async function login(){
     msg.textContent =
       "Email dan password wajib diisi.";
 
-    button.disabled =
-      false;
-
     return;
 
   }
 
 
-  const {
-    data,
-    error
-  } =
-    await client.auth
-      .signInWithPassword({
+  button.disabled =
+    true;
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await client.auth.signInWithPassword({
 
         email:email,
 
@@ -666,90 +648,86 @@ async function login(){
       });
 
 
-  if(error){
+    if(error)
+      throw error;
+
+
+    const {
+      data:profile,
+      error:profileError
+    } =
+      await client
+        .from("admin_profiles")
+        .select(
+          "display_name,role"
+        )
+        .eq(
+          "user_id",
+          data.user.id
+        )
+        .maybeSingle();
+
+
+    if(profileError)
+      throw profileError;
+
+
+    if(!profile){
+
+      await client.auth.signOut();
+
+      throw new Error(
+        "Akun ini bukan admin."
+      );
+
+    }
+
+
+    showDashboard(profile);
+
+
+  }
+  catch(error){
+
+    console.error(error);
 
     msg.textContent =
-      "Login gagal: " +
+      "❌ Login gagal: " +
       error.message;
 
-    button.disabled =
-      false;
-
-    return;
-
   }
-
-
-  const {
-    data:profile,
-    error:profileError
-  } =
-    await client
-      .from("admin_profiles")
-      .select(
-        "display_name,role"
-      )
-      .eq(
-        "user_id",
-        data.user.id
-      )
-      .maybeSingle();
-
-
-  if(profileError){
-
-    await client.auth.signOut();
-
-    msg.textContent =
-      profileError.message;
+  finally{
 
     button.disabled =
       false;
 
-    return;
-
   }
 
+}
 
-  if(!profile){
 
-    await client.auth.signOut();
+// =====================================================
+// TAMPILKAN DASHBOARD
+// =====================================================
 
-    msg.textContent =
-      "Akun ini bukan admin.";
-
-    button.disabled =
-      false;
-
-    return;
-
-  }
-
+async function showDashboard(profile){
 
   document
     .getElementById("login")
-    .classList.add(
-      "hidden"
-    );
+    .classList.add("hidden");
 
 
   document
     .getElementById("dashboard")
-    .classList.remove(
-      "hidden"
-    );
+    .classList.remove("hidden");
 
 
   document
     .getElementById("adminName")
     .textContent =
-      profile.display_name +
+      (profile.display_name || "Admin") +
       " • " +
-      profile.role;
-
-
-  button.disabled =
-    false;
+      (profile.role || "admin");
 
 
   await loadAll();
@@ -763,13 +741,17 @@ async function login(){
 
 async function loadAll(){
 
-  await loadSettings();
+  await Promise.all([
 
-  await loadStats();
+    loadSettings(),
 
-  await loadCandidates();
+    loadStats(),
 
-  await loadResults();
+    loadResults(),
+
+    loadCandidates()
+
+  ]);
 
 }
 
@@ -778,17 +760,30 @@ async function loadAll(){
 // SETTINGS
 // =====================================================
 
-function toLocal(v){
+function toLocal(value){
 
-  if(!v)
+  if(!value)
     return "";
 
-  return new Date(v)
-    .toISOString()
-    .slice(
-      0,
-      16
+
+  const date =
+    new Date(value);
+
+
+  const offset =
+    date.getTimezoneOffset();
+
+
+  const local =
+    new Date(
+      date.getTime() -
+      offset * 60000
     );
+
+
+  return local
+    .toISOString()
+    .slice(0,16);
 
 }
 
@@ -802,22 +797,16 @@ async function loadSettings(){
     await client
       .from("settings")
       .select("*")
-      .eq(
-        "id",
-        1
-      )
+      .eq("id",1)
       .single();
 
 
   if(error){
 
     document
-      .getElementById(
-        "settingsMsg"
-      )
+      .getElementById("settingsMsg")
       .textContent =
-        "❌ " +
-        error.message;
+        "❌ " + error.message;
 
     return;
 
@@ -825,55 +814,39 @@ async function loadSettings(){
 
 
   document
-    .getElementById(
-      "election_name"
-    )
+    .getElementById("election_name")
     .value =
       data.election_name || "";
 
 
   document
-    .getElementById(
-      "start_at"
-    )
+    .getElementById("start_at")
     .value =
-      toLocal(
-        data.start_at
-      );
+      toLocal(data.start_at);
 
 
   document
-    .getElementById(
-      "end_at"
-    )
+    .getElementById("end_at")
     .value =
-      toLocal(
-        data.end_at
-      );
+      toLocal(data.end_at);
 
 
   document
-    .getElementById(
-      "minutes"
-    )
+    .getElementById("minutes")
     .value =
       data.minutes_per_voter || 5;
 
 
   document
-    .getElementById(
-      "status"
-    )
+    .getElementById("status")
     .value =
-      data.status;
+      data.status || "draft";
 
 
   document
-    .getElementById(
-      "results_mode"
-    )
+    .getElementById("results_mode")
     .value =
-      data.results_mode;
+      data.results_mode || "hidden";
 
 }
 
@@ -884,6 +857,24 @@ async function loadSettings(){
 
 async function saveSettings(){
 
+  const msg =
+    document.getElementById(
+      "settingsMsg"
+    );
+
+
+  const startValue =
+    document
+      .getElementById("start_at")
+      .value;
+
+
+  const endValue =
+    document
+      .getElementById("end_at")
+      .value;
+
+
   const {
     error
   } =
@@ -893,89 +884,60 @@ async function saveSettings(){
 
         election_name:
           document
-            .getElementById(
-              "election_name"
-            )
-            .value,
+            .getElementById("election_name")
+            .value
+            .trim(),
 
         start_at:
-          document
-            .getElementById(
-              "start_at"
-            )
-            .value
-            ?
-            new Date(
-              document
-                .getElementById(
-                  "start_at"
-                )
-                .value
-            ).toISOString()
-            :
-            null,
+          startValue
+            ? new Date(
+                startValue
+              ).toISOString()
+            : null,
 
         end_at:
-          document
-            .getElementById(
-              "end_at"
-            )
-            .value
-            ?
-            new Date(
-              document
-                .getElementById(
-                  "end_at"
-                )
-                .value
-            ).toISOString()
-            :
-            null,
+          endValue
+            ? new Date(
+                endValue
+              ).toISOString()
+            : null,
 
         minutes_per_voter:
           Number(
             document
-              .getElementById(
-                "minutes"
-              )
+              .getElementById("minutes")
               .value
           ),
 
         status:
           document
-            .getElementById(
-              "status"
-            )
+            .getElementById("status")
             .value,
 
         results_mode:
           document
-            .getElementById(
-              "results_mode"
-            )
+            .getElementById("results_mode")
             .value,
 
         updated_at:
           new Date().toISOString()
 
       })
-      .eq(
-        "id",
-        1
-      );
+      .eq("id",1);
 
 
-  document
-    .getElementById(
-      "settingsMsg"
-    )
-    .textContent =
-      error
-      ?
-      "❌ " +
-      error.message
-      :
-      "✅ Pengaturan tersimpan";
+  if(error){
+
+    msg.textContent =
+      "❌ " + error.message;
+
+  }
+  else{
+
+    msg.textContent =
+      "✅ Pengaturan berhasil disimpan.";
+
+  }
 
 }
 
@@ -987,8 +949,7 @@ async function saveSettings(){
 async function loadStats(){
 
   const {
-    count:total,
-    error:totalError
+    count:total
   } =
     await client
       .from("voters")
@@ -1002,8 +963,7 @@ async function loadStats(){
 
 
   const {
-    count:voted,
-    error:votedError
+    count:voted
   } =
     await client
       .from("voters")
@@ -1021,8 +981,7 @@ async function loadStats(){
 
 
   const {
-    count:voteCount,
-    error:voteError
+    count:voteCount
   } =
     await client
       .from("votes")
@@ -1035,47 +994,20 @@ async function loadStats(){
       );
 
 
-  if(totalError)
-    console.error(
-      "Total pemilih:",
-      totalError
-    );
-
-
-  if(votedError)
-    console.error(
-      "Sudah memilih:",
-      votedError
-    );
-
-
-  if(voteError)
-    console.error(
-      "Suara:",
-      voteError
-    );
-
-
   document
-    .getElementById(
-      "voters"
-    )
+    .getElementById("voters")
     .textContent =
       total ?? 0;
 
 
   document
-    .getElementById(
-      "voted"
-    )
+    .getElementById("voted")
     .textContent =
       voted ?? 0;
 
 
   document
-    .getElementById(
-      "votes"
-    )
+    .getElementById("votes")
     .textContent =
       voteCount ?? 0;
 
@@ -1093,40 +1025,16 @@ async function loadResults(){
       "results"
     );
 
-  const button =
-    document.getElementById(
-      "refreshResultsButton"
-    );
-
-  const status =
-    document.getElementById(
-      "refreshStatus"
-    );
-
-
-  button.disabled =
-    true;
-
-  button.textContent =
-    "⏳ Memuat...";
-
-  status.textContent =
-    "Mengambil data terbaru dari database...";
-
 
   box.innerHTML =
-    `
-    <div class="muted">
-      ⏳ Memuat hasil suara...
-    </div>
-    `;
+    "Memuat hasil...";
 
 
   try{
 
-    // -------------------------------------------------
+    // ================================================
     // AMBIL KANDIDAT
-    // -------------------------------------------------
+    // ================================================
 
     const {
       data:candidates,
@@ -1156,23 +1064,18 @@ async function loadResults(){
     ){
 
       box.innerHTML =
-        `
-        <div class="muted">
-          Belum ada kandidat aktif.
-        </div>
-        `;
-
-      status.textContent =
-        "Tidak ada kandidat.";
+        "<div class='empty'>" +
+        "Belum ada kandidat." +
+        "</div>";
 
       return;
 
     }
 
 
-    // -------------------------------------------------
-    // AMBIL SUARA TERBARU
-    // -------------------------------------------------
+    // ================================================
+    // AMBIL SEMUA SUARA
+    // ================================================
 
     const {
       data:votes,
@@ -1189,35 +1092,26 @@ async function loadResults(){
       throw voteError;
 
 
-    // -------------------------------------------------
-    // HITUNG
-    // -------------------------------------------------
-
     const counts = {};
 
 
     candidates.forEach(
       candidate => {
 
-        counts[
-          candidate.id
-        ] = 0;
+        counts[candidate.id] =
+          0;
 
       }
     );
 
 
-    (
-      votes || []
-    ).forEach(
+    (votes || []).forEach(
       vote => {
 
         if(
-          Object.prototype
-            .hasOwnProperty.call(
-              counts,
-              vote.candidate_id
-            )
+          counts[
+            vote.candidate_id
+          ] !== undefined
         ){
 
           counts[
@@ -1230,205 +1124,117 @@ async function loadResults(){
     );
 
 
-    // -------------------------------------------------
-    // TOTAL
-    // -------------------------------------------------
+    const totalVotes =
+      (votes || []).length;
 
-    let totalVotes =
-      0;
+
+    let html = "";
 
 
     candidates.forEach(
       candidate => {
 
-        totalVotes +=
-          counts[
-            candidate.id
-          ] || 0;
-
-      }
-    );
-
-
-    // -------------------------------------------------
-    // RESET HASIL
-    // -------------------------------------------------
-
-    box.innerHTML =
-      `
-      <div class="total-result">
-
-        Total suara yang masuk:
-
-        <strong>
-          ${totalVotes}
-        </strong>
-
-      </div>
-      `;
-
-
-    // -------------------------------------------------
-    // TAMPILKAN KANDIDAT
-    // -------------------------------------------------
-
-    candidates.forEach(
-      candidate => {
-
-        const jumlah =
-          counts[
-            candidate.id
-          ] || 0;
+        const count =
+          counts[candidate.id] || 0;
 
 
         const percentage =
           totalVotes > 0
-          ?
-          (
-            jumlah /
-            totalVotes *
-            100
-          )
-          :
-          0;
+            ? (
+                count /
+                totalVotes
+              ) * 100
+            : 0;
 
 
-        const div =
-          document.createElement(
-            "div"
-          );
+        html += `
 
+          <div class="result">
 
-        div.className =
-          "result-item";
+            <div class="result-top">
 
+              <div>
 
-        div.innerHTML =
-          `
+                <div class="result-number">
+                  NOMOR ${escapeHtml(candidate.number)}
+                </div>
 
-          <div class="result-header">
+                <div class="result-name">
 
-            <div>
+                  ${escapeHtml(
+                    candidate.chairman_name
+                  )}
 
-              <div class="result-number">
+                  &
 
-                NOMOR
-                ${esc(
-                  candidate.number
-                )}
+                  ${escapeHtml(
+                    candidate.vice_name
+                  )}
+
+                </div>
 
               </div>
 
-              <div class="result-name">
+              <div class="vote-count">
 
-                ${esc(
-                  candidate.chairman_name
-                )}
+                ${count}
 
-                <br>
-
-                &
-
-                <br>
-
-                ${esc(
-                  candidate.vice_name
-                )}
+                <span
+                  class="muted"
+                  style="font-size:14px"
+                >
+                  suara
+                </span>
 
               </div>
 
             </div>
 
 
-            <div class="result-votes">
+            <div class="bar">
 
-              ${jumlah}
-
-              <span>
-                suara
-              </span>
+              <div
+                class="bar-fill"
+                style="width:${percentage}%"
+              ></div>
 
             </div>
 
-          </div>
-
-
-          <div class="result-bar">
 
             <div
-              class="result-fill"
-              style="width:${percentage}%"
-            ></div>
+              class="muted"
+              style="margin-top:8px"
+            >
+
+              ${percentage.toFixed(1)}%
+
+            </div>
 
           </div>
 
-
-          <div class="result-percent">
-
-            ${percentage.toFixed(1)}%
-
-          </div>
-
-          `;
-
-
-        box.appendChild(
-          div
-        );
+        `;
 
       }
     );
 
 
-    status.textContent =
-      "✅ Hasil berhasil diperbarui • " +
-      new Date()
-        .toLocaleTimeString(
-          "id-ID"
-        );
-
+    box.innerHTML =
+      html;
 
   }
   catch(error){
 
-    console.error(
-      "HASIL SUARA ERROR:",
-      error
-    );
-
+    console.error(error);
 
     box.innerHTML =
       `
-
-      <div style="
-        color:#fca5a5;
-        padding:10px 0;
-      ">
-
-        ❌ Gagal memuat hasil suara.
-
-        <br><br>
-
-        ${esc(
-          error.message
-        )}
-
-      </div>
-
+        <div class="msg">
+          ❌ Gagal memuat hasil:
+          ${escapeHtml(
+            error.message
+          )}
+        </div>
       `;
-
-
-    status.textContent =
-      "❌ Refresh gagal";
-
-  }
-  finally{
-
-    button.disabled =
-      false;
-
-    button.textContent =
-      "🔄 Refresh Hasil";
 
   }
 
@@ -1472,7 +1278,7 @@ async function loadCandidates(){
   if(error){
 
     box.textContent =
-      "Gagal membaca kandidat: " +
+      "❌ Gagal membaca kandidat: " +
       error.message;
 
     return;
@@ -1493,8 +1299,7 @@ async function loadCandidates(){
   }
 
 
-  box.innerHTML =
-    "";
+  box.innerHTML = "";
 
 
   candidates.forEach(
@@ -1513,27 +1318,27 @@ async function loadCandidates(){
       const photoHTML =
         candidate.photo_url
         ?
+
         `
-        <img
-          class="candidate-photo"
-          src="${esc(
-            candidate.photo_url
-          )}"
-          alt="Foto kandidat"
-        >
+          <img
+            class="candidate-photo"
+            src="${escapeHtml(
+              candidate.photo_url
+            )}"
+            alt="Foto kandidat"
+          >
         `
+
         :
+
         `
-        <div class="no-photo">
-
-          📷 Belum ada foto
-
-        </div>
+          <div class="no-photo">
+            📷 Belum ada foto
+          </div>
         `;
 
 
-      div.innerHTML =
-        `
+      div.innerHTML = `
 
         ${photoHTML}
 
@@ -1541,7 +1346,7 @@ async function loadCandidates(){
         <div class="candidate-number">
 
           NOMOR
-          ${esc(
+          ${escapeHtml(
             candidate.number
           )}
 
@@ -1550,7 +1355,7 @@ async function loadCandidates(){
 
         <div class="candidate-name">
 
-          ${esc(
+          ${escapeHtml(
             candidate.chairman_name
           )}
 
@@ -1560,7 +1365,7 @@ async function loadCandidates(){
 
           <br>
 
-          ${esc(
+          ${escapeHtml(
             candidate.vice_name
           )}
 
@@ -1569,11 +1374,9 @@ async function loadCandidates(){
 
         <p class="muted">
 
-          <b>Visi:</b>
+          <b>Visi:</b><br>
 
-          <br>
-
-          ${esc(
+          ${escapeHtml(
             candidate.vision || "-"
           )}
 
@@ -1582,11 +1385,9 @@ async function loadCandidates(){
 
         <p class="muted">
 
-          <b>Misi:</b>
+          <b>Misi:</b><br>
 
-          <br>
-
-          ${esc(
+          ${escapeHtml(
             candidate.mission || "-"
           )}
 
@@ -1602,38 +1403,45 @@ async function loadCandidates(){
           class="file-input"
           type="file"
           accept="image/jpeg,image/png,image/webp"
-          id="file-${candidate.id}"
+          id="file-${escapeHtml(
+            candidate.id
+          )}"
         >
 
 
         <button
           class="upload-button"
-          onclick="uploadPhoto('${candidate.id}')"
+          onclick="uploadPhoto('${escapeHtml(
+            candidate.id
+          )}')"
         >
-
           📤 Upload Foto
-
         </button>
 
 
         ${
           candidate.photo_url
+
           ?
-          `
-          <button
-            class="delete-button"
-            onclick="deletePhoto('${candidate.id}')"
-          >
 
-            🗑️ Hapus Foto
-
-          </button>
           `
+            <button
+              class="delete-button"
+              onclick="deletePhoto('${escapeHtml(
+                candidate.id
+              )}')"
+            >
+              🗑️ Hapus Foto
+            </button>
+          `
+
           :
+
           ""
+
         }
 
-        `;
+      `;
 
 
       box.appendChild(
@@ -1700,7 +1508,9 @@ async function uploadPhoto(
   const allowedTypes = [
 
     "image/jpeg",
+
     "image/png",
+
     "image/webp"
 
   ];
@@ -1786,10 +1596,8 @@ async function uploadPhoto(
       await client
         .from("candidates")
         .update({
-
           photo_url:
             photoUrl
-
         })
         .eq(
           "id",
@@ -1810,10 +1618,7 @@ async function uploadPhoto(
   }
   catch(error){
 
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     message.textContent =
       "❌ Upload gagal: " +
@@ -1870,15 +1675,17 @@ async function deletePhoto(
       throw getError;
 
 
+    const photoUrl =
+      candidate.photo_url;
+
+
     const {
       error:updateError
     } =
       await client
         .from("candidates")
         .update({
-
           photo_url:null
-
         })
         .eq(
           "id",
@@ -1890,20 +1697,15 @@ async function deletePhoto(
       throw updateError;
 
 
-    if(
-      candidate.photo_url
-    ){
+    if(photoUrl){
 
       const parts =
-        candidate.photo_url
-          .split(
-            "/candidate-photos/"
-          );
+        photoUrl.split(
+          "/candidate-photos/"
+        );
 
 
-      if(
-        parts.length > 1
-      ){
+      if(parts.length > 1){
 
         const filePath =
           decodeURIComponent(
@@ -1911,27 +1713,14 @@ async function deletePhoto(
           );
 
 
-        const {
-          error:storageError
-        } =
-          await client
-            .storage
-            .from(
-              "candidate-photos"
-            )
-            .remove([
-              filePath
-            ]);
-
-
-        if(storageError){
-
-          console.warn(
-            "Storage:",
-            storageError
-          );
-
-        }
+        await client
+          .storage
+          .from(
+            "candidate-photos"
+          )
+          .remove([
+            filePath
+          ]);
 
       }
 
@@ -1947,10 +1736,7 @@ async function deletePhoto(
   }
   catch(error){
 
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     message.textContent =
       "❌ Gagal menghapus foto: " +
@@ -1971,37 +1757,17 @@ async function logout(){
 
 
   document
-    .getElementById(
-      "login"
-    )
+    .getElementById("login")
     .classList.remove(
       "hidden"
     );
 
 
   document
-    .getElementById(
-      "dashboard"
-    )
+    .getElementById("dashboard")
     .classList.add(
       "hidden"
     );
-
-
-  document
-    .getElementById(
-      "password"
-    )
-    .value =
-      "";
-
-
-  document
-    .getElementById(
-      "loginMsg"
-    )
-    .textContent =
-      "";
 
 }
 
@@ -2010,27 +1776,19 @@ async function logout(){
 // ESCAPE HTML
 // =====================================================
 
-function esc(value){
+function escapeHtml(text){
 
-  return String(
-    value ?? ""
-  )
-  .replace(
-    /[&<>"']/g,
-    function(m){
+  const div =
+    document.createElement(
+      "div"
+    );
 
-      return {
 
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#039;"
+  div.textContent =
+    text ?? "";
 
-      }[m];
 
-    }
-  );
+  return div.innerHTML;
 
 }
 
@@ -2071,10 +1829,7 @@ async function checkAdmin(){
 
   if(error){
 
-    console.error(
-      "Profil admin:",
-      error
-    );
+    console.error(error);
 
     return;
 
@@ -2090,41 +1845,15 @@ async function checkAdmin(){
   }
 
 
-  document
-    .getElementById(
-      "login"
-    )
-    .classList.add(
-      "hidden"
-    );
-
-
-  document
-    .getElementById(
-      "dashboard"
-    )
-    .classList.remove(
-      "hidden"
-    );
-
-
-  document
-    .getElementById(
-      "adminName"
-    )
-    .textContent =
-      profile.display_name +
-      " • " +
-      profile.role;
-
-
-  await loadAll();
+  showDashboard(
+    profile
+  );
 
 }
 
 
 // =====================================================
-// START
+// MULAI
 // =====================================================
 
 checkAdmin();

@@ -146,6 +146,7 @@
     Silakan masuk untuk mengikuti pemilihan
   </div>
 
+
   <!-- LOGIN -->
   <div id="loginPage">
 
@@ -160,6 +161,7 @@
       autocomplete="off"
     >
 
+
     <label for="kelas">
       Kelas
     </label>
@@ -171,6 +173,7 @@
       autocomplete="off"
     >
 
+
     <button
       id="loginButton"
       onclick="loginPemilih()"
@@ -178,10 +181,12 @@
       MASUK
     </button>
 
+
     <div
       id="message"
       class="message"
     ></div>
+
 
     <div
       id="status"
@@ -191,6 +196,7 @@
     </div>
 
   </div>
+
 
   <!-- BERHASIL LOGIN -->
   <div
@@ -216,6 +222,7 @@
 
     </div>
 
+
     <button
       class="continue"
       onclick="lanjutVoting()"
@@ -227,7 +234,9 @@
 
 </div>
 
+
 <script>
+
 
 // =====================================================
 // SUPABASE
@@ -245,8 +254,10 @@ const supabaseClient =
     SUPABASE_KEY
   );
 
+
 // Pemilih yang sedang login
 let currentVoter = null;
+
 
 // =====================================================
 // CEK STATUS PEMILIHAN
@@ -256,6 +267,7 @@ async function checkElectionStatus() {
 
   const statusBox =
     document.getElementById("status");
+
 
   const {
     data,
@@ -267,6 +279,7 @@ async function checkElectionStatus() {
       .eq("id", 1)
       .single();
 
+
   if (error) {
 
     statusBox.textContent =
@@ -275,23 +288,28 @@ async function checkElectionStatus() {
     return;
   }
 
+
   const now =
     new Date();
+
 
   const start =
     data.start_at
       ? new Date(data.start_at)
       : null;
 
+
   const end =
     data.end_at
       ? new Date(data.end_at)
       : null;
 
+
   const isOpen =
     data.status === "open" &&
     (!start || now >= start) &&
     (!end || now <= end);
+
 
   if (isOpen) {
 
@@ -313,6 +331,7 @@ async function checkElectionStatus() {
 
 }
 
+
 // =====================================================
 // LOGIN PEMILIH
 // =====================================================
@@ -325,24 +344,29 @@ async function loginPemilih() {
       .value
       .trim();
 
+
   const kelas =
     document
       .getElementById("kelas")
       .value
       .trim();
 
+
   const message =
     document
       .getElementById("message");
+
 
   const button =
     document
       .getElementById("loginButton");
 
+
   message.textContent = "";
 
   message.className =
     "message";
+
 
   if (!nama || !kelas) {
 
@@ -356,10 +380,12 @@ async function loginPemilih() {
     return;
   }
 
+
   button.disabled = true;
 
   button.textContent =
     "MEMERIKSA...";
+
 
   try {
 
@@ -377,29 +403,35 @@ async function loginPemilih() {
         .eq("id", 1)
         .single();
 
+
     if (settingsError) {
 
       throw settingsError;
 
     }
 
+
     const now =
       new Date();
+
 
     const start =
       settings.start_at
         ? new Date(settings.start_at)
         : null;
 
+
     const end =
       settings.end_at
         ? new Date(settings.end_at)
         : null;
 
+
     const isOpen =
       settings.status === "open" &&
       (!start || now >= start) &&
       (!end || now <= end);
+
 
     if (!isOpen) {
 
@@ -412,6 +444,7 @@ async function loginPemilih() {
 
       return;
     }
+
 
     // ================================================
     // CARI PEMILIH
@@ -436,11 +469,13 @@ async function loginPemilih() {
         )
         .maybeSingle();
 
+
     if (voterError) {
 
       throw voterError;
 
     }
+
 
     if (!voter) {
 
@@ -453,6 +488,7 @@ async function loginPemilih() {
 
       return;
     }
+
 
     // ================================================
     // CEK SUDAH MEMILIH
@@ -470,12 +506,14 @@ async function loginPemilih() {
       return;
     }
 
+
     // ================================================
     // LOGIN BERHASIL
     // ================================================
 
     currentVoter =
       voter;
+
 
     document
       .getElementById(
@@ -485,6 +523,7 @@ async function loginPemilih() {
         "hidden"
       );
 
+
     document
       .getElementById(
         "welcomePage"
@@ -492,6 +531,7 @@ async function loginPemilih() {
       .classList.remove(
         "hidden"
       );
+
 
     document
       .getElementById(
@@ -504,6 +544,7 @@ async function loginPemilih() {
             ? " • " + voter.kelas
             : ""
         );
+
 
   } catch (error) {
 
@@ -529,6 +570,7 @@ async function loginPemilih() {
 
 }
 
+
 // =====================================================
 // LANJUT VOTING
 // =====================================================
@@ -551,6 +593,7 @@ function lanjutVoting() {
 
 }
 
+
 // =====================================================
 // JALANKAN SAAT HALAMAN DIBUKA
 // =====================================================
@@ -561,5 +604,3 @@ checkElectionStatus();
 
 </body>
 </html>
-
-ini?

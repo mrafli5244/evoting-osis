@@ -419,31 +419,89 @@ async function loadCandidates() {
 // PILIH KANDIDAT
 // =====================================================
 
-function pilihKandidat(candidateId) {
+async function pilihKandidat(candidateId) {
 
-  const yakin =
-    confirm(
-      "Yakin memilih pasangan kandidat ini?"
-    );
+  const voterId =
+    sessionStorage.getItem("voter_id");
 
+  if (!voterId) {
+    alert("Sesi pemilih tidak ditemukan. Silakan login kembali.");
+    window.location.href = "../";
+    return;
+  }
+
+  const yakin = confirm(
+    "Yakin memilih kandidat ini?\n\nPilihan yang sudah dikirim tidak dapat diubah."
+  );
 
   if (!yakin) {
     return;
   }
 
+  try {
 
-  sessionStorage.setItem(
-    "selected_candidate",
-    candidateId
-  );
+    const {
+      data: voter,
+      error: voterError
+    } = await supabaseClient
+      .from("voters")
+      .select("id,name,has_voted")
+      .eq("id", voterId)
+      .single();
 
+    if (voterError) {
+      throw voterError;
+    }
 
-  alert(
-    "Kandidat dipilih. Tahap berikutnya adalah konfirmasi suara."
-  );
+    if (voter.has_voted) {
+      alert("Pemilih ini sudah menggunakan hak suara.");
+      return;
+    }
+
+    const {
+      error: voteError
+    } = await supabaseClient
+      .from("votes")
+      .insert({
+        voter_id: voterId,
+        candidate_id: candidateId
+      });
+
+    if (voteError) {
+      throw voteError;
+    }
+
+    const {
+      error: updateError
+    } = await supabaseClient
+      .from("voters")
+      .update({
+        has_voted: true
+      })
+      .eq("id", voterId);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    alert(
+      "✅ Suara berhasil direkam.\n\nTerima kasih telah menggunakan hak suara."
+    );
+
+    window.location.href = "../";
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "❌ Suara gagal disimpan.\n\n" +
+      error.message
+    );
+
+  }
 
 }
-
 
 // =====================================================
 // ESCAPE HTML

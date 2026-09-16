@@ -1,597 +1,451 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-  <title>Dashboard Admin — E-Voting OSIS</title>
+<title>Admin — E-Voting OSIS</title>
 
-  <!-- SUPABASE -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- SHEETJS / PEMBACA EXCEL -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box}
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+body{
+  margin:0;
+  background:#0b0d10;
+  color:#f5f5f5;
+  font-family:system-ui,sans-serif;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #080b10;
-      color: white;
-    }
+main{
+  max-width:1000px;
+  margin:auto;
+  padding:28px 18px;
+}
 
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      padding: 25px;
-    }
+.card{
+  background:#12161b;
+  border:1px solid #292f37;
+  border-radius:16px;
+  padding:22px;
+  margin:16px 0;
+}
 
-    h1 {
-      font-size: 34px;
-      margin-bottom: 5px;
-    }
+input,select{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  background:#0c0f13;
+  color:#fff;
+  border:1px solid #303640;
+  border-radius:9px;
+}
 
-    h2 {
-      margin-top: 0;
-    }
+button{
+  padding:13px 16px;
+  border:0;
+  border-radius:9px;
+  font-weight:800;
+  cursor:pointer;
+  margin-top:8px;
+}
 
-    .subtitle {
-      color: #9ca3af;
-      margin-bottom: 25px;
-    }
+.primary{
+  background:#2563eb;
+  color:white;
+}
 
-    .card {
-      background: #11161d;
-      border: 1px solid #29313c;
-      border-radius: 18px;
-      padding: 22px;
-      margin-bottom: 20px;
-    }
+.success{
+  background:#16a34a;
+  color:white;
+}
 
-    input {
-      width: 100%;
-      padding: 15px;
-      margin: 8px 0;
-      border-radius: 10px;
-      border: 1px solid #394351;
-      background: #080b10;
-      color: white;
-      font-size: 16px;
-    }
+.danger{
+  background:#dc2626;
+  color:white;
+}
 
-    button {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
+.logout{
+  background:#272d36;
+  color:white;
+}
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+.grid{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+}
 
-    .primary {
-      background: #2563eb;
-      color: white;
-    }
+.stat{
+  font-size:28px;
+  font-weight:800;
+}
 
-    .danger {
-      background: #dc2626;
-      color: white;
-    }
+.muted{
+  opacity:.65;
+}
 
-    .success {
-      background: #16a34a;
-      color: white;
-    }
+.msg{
+  min-height:22px;
+}
 
-    .logout {
-      background: #272d36;
-      color: white;
-    }
+.hidden{
+  display:none;
+}
 
-    .muted {
-      color: #9ca3af;
-    }
+.candidates{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(280px,1fr));
+  gap:18px;
+}
 
-    .hidden {
-      display: none;
-    }
+.candidate{
+  background:#171b21;
+  border:1px solid #303640;
+  border-radius:15px;
+  padding:18px;
+}
 
-    .message {
-      margin-top: 12px;
-      color: #fca5a5;
-      line-height: 1.5;
-    }
+.candidate-photo{
+  width:100%;
+  height:260px;
+  object-fit:cover;
+  border-radius:12px;
+  background:#0c0f13;
+  display:block;
+  margin-bottom:15px;
+}
 
-    .success-message {
-      color: #86efac;
-    }
+.no-photo{
+  width:100%;
+  height:260px;
+  border-radius:12px;
+  background:#0c0f13;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#777;
+  margin-bottom:15px;
+}
 
-    .status {
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-weight: bold;
-      margin-top: 5px;
-    }
+.candidate-number{
+  color:#60a5fa;
+  font-weight:bold;
+}
 
-    .open {
-      background: #14532d;
-      color: #86efac;
-    }
+.candidate-name{
+  font-size:20px;
+  font-weight:800;
+  margin-top:8px;
+  line-height:1.4;
+}
 
-    .closed {
-      background: #450a0a;
-      color: #fca5a5;
-    }
+.file-input{
+  padding:10px;
+}
 
-    .draft {
-      background: #422006;
-      color: #fdba74;
-    }
+.upload-button{
+  width:100%;
+  background:#2563eb;
+  color:white;
+}
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-    }
+.delete-button{
+  width:100%;
+  background:#dc2626;
+  color:white;
+}
 
-    .stat {
-      background: #171d25;
-      border-radius: 14px;
-      padding: 20px;
-    }
+@media(max-width:600px){
+  main{
+    padding:18px 12px;
+  }
 
-    .stat-number {
-      font-size: 32px;
-      font-weight: bold;
-      margin-top: 8px;
-    }
-
-    .candidate {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-      padding: 17px;
-      margin: 10px 0;
-      border: 1px solid #303946;
-      border-radius: 12px;
-      background: #151a22;
-    }
-
-    .candidate-name {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .votes {
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .info-box {
-      background: #0b1220;
-      border: 1px solid #26354d;
-      border-radius: 12px;
-      padding: 15px;
-      margin-top: 15px;
-      line-height: 1.6;
-    }
-
-    .preview-wrapper {
-      overflow-x: auto;
-      margin-top: 15px;
-    }
-
-    .preview-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 550px;
-    }
-
-    .preview-table th,
-    .preview-table td {
-      border-bottom: 1px solid #303946;
-      padding: 12px 10px;
-      text-align: left;
-    }
-
-    .preview-table th {
-      color: #93c5fd;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 5px 9px;
-      border-radius: 7px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .badge-siswa {
-      background: #172554;
-      color: #93c5fd;
-    }
-
-    .badge-guru {
-      background: #422006;
-      color: #fdba74;
-    }
-
-    .code-box {
-      margin-top: 15px;
-      padding: 15px;
-      background: #080b10;
-      border: 1px solid #303946;
-      border-radius: 10px;
-      white-space: pre-wrap;
-      line-height: 1.7;
-      overflow-x: auto;
-    }
-
-    @media(max-width:700px) {
-      .container {
-        padding: 15px;
-      }
-
-      h1 {
-        font-size: 28px;
-      }
-
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      .candidate {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-  </style>
+  .card{
+    padding:18px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-<div class="container">
+<main>
 
-  <h1>🛠️ Dashboard Admin</h1>
+<h1>🛠️ Dashboard Admin</h1>
 
-  <div class="subtitle">
-    E-Voting OSIS — Panel Pengelola
-  </div>
+<p class="muted">
+E-Voting Ketua & Wakil Ketua OSIS
+</p>
 
 
-  <!-- LOGIN -->
-  <div id="loginBox" class="card">
+<!-- LOGIN -->
 
-    <h2>Login Admin</h2>
+<section id="login" class="card">
 
-    <input
-      id="email"
-      type="email"
-      placeholder="Email admin"
-    >
+<h2>Login Admin</h2>
 
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-    >
+<input
+  id="username"
+  placeholder="Email admin"
+  autocomplete="username"
+>
 
-    <button
-      class="primary"
-      onclick="login()"
-    >
-      Masuk sebagai Admin
-    </button>
+<input
+  id="password"
+  type="password"
+  placeholder="Password"
+  autocomplete="current-password"
+>
 
-    <div
-      id="loginMessage"
-      class="message"
-    ></div>
+<button
+  class="primary"
+  onclick="login()"
+>
+Masuk
+</button>
 
-  </div>
+<p id="loginMsg" class="msg"></p>
 
+</section>
 
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="hidden">
 
+<!-- DASHBOARD -->
 
-    <!-- ADMIN -->
-    <div class="card">
+<section id="dashboard" class="hidden">
 
-      <h2>👋 Selamat datang</h2>
 
-      <div
-        id="adminName"
-        class="muted"
-      >
-        Memuat...
-      </div>
+<!-- ADMIN -->
 
-      <button
-        class="logout"
-        onclick="logout()"
-      >
-        Keluar
-      </button>
+<div class="card">
 
-    </div>
+<h2>👋 Dashboard Admin</h2>
 
+<p id="adminName" class="muted">
+Memuat...
+</p>
 
-    <!-- STATUS PEMILIHAN -->
-    <div class="card">
-
-      <h2>⚙️ Status Pemilihan</h2>
-
-      <div>
-        Status:
-
-        <span
-          id="statusBadge"
-          class="status"
-        >
-          ...
-        </span>
-      </div>
-
-      <p class="muted">
-        Mulai:
-        <span id="startTime">-</span>
-      </p>
-
-      <p class="muted">
-        Selesai:
-        <span id="endTime">-</span>
-      </p>
-
-      <button
-        class="success"
-        onclick="openElection()"
-      >
-        🟢 Buka Pemilihan
-      </button>
-
-      <button
-        class="danger"
-        onclick="closeElection()"
-      >
-        🔴 Tutup Pemilihan
-      </button>
-
-      <div
-        id="statusMessage"
-        class="message"
-      ></div>
-
-    </div>
-
-
-    <!-- DATA PEMILIH -->
-    <div class="card">
-
-      <h2>👥 Data Pemilih</h2>
-
-      <p class="muted">
-        Upload data siswa dan guru menggunakan Excel.
-      </p>
-
-      <div class="info-box">
-
-        <b>Format Excel:</b>
-
-        <br><br>
-
-        Kolom 1 → <b>NAMA</b>
-
-        <br>
-
-        Kolom 2 → <b>KELAS</b>
-
-        <br>
-
-        Kolom 3 → <b>TIPE_PEMILIH</b>
-
-        <br><br>
-
-        Contoh:
-
-        <br>
-
-        Aldi — XII IPA 1 — Siswa
-
-        <br>
-
-        Pak jajang — — Guru
-
-      </div>
-
-      <input
-        id="excelFile"
-        type="file"
-        accept=".xlsx,.xls"
-      >
-
-      <button
-        class="primary"
-        onclick="previewExcel()"
-      >
-        📥 Baca File Excel
-      </button>
-
-      <div
-        id="excelMessage"
-        class="message"
-      ></div>
-
-      <div
-        id="excelPreview"
-      ></div>
-
-      <button
-        id="importButton"
-        class="success hidden"
-        onclick="importVoters()"
-      >
-        ✅ Masukkan ke Database
-      </button>
-
-    </div>
-
-
-    <!-- STATISTIK -->
-    <div class="card">
-
-      <h2>📊 Statistik</h2>
-
-      <div class="stats">
-
-        <div class="stat">
-
-          <div class="muted">
-            Total Pemilih
-          </div>
-
-          <div
-            id="totalVoters"
-            class="stat-number"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="stat">
-
-          <div class="muted">
-            Sudah Memilih
-          </div>
-
-          <div
-            id="totalVoted"
-            class="stat-number"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="stat">
-
-          <div class="muted">
-            Belum Memilih
-          </div>
-
-          <div
-            id="totalNotVoted"
-            class="stat-number"
-          >
-            0
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- HASIL -->
-    <div class="card">
-
-      <h2>🗳️ Hasil Suara</h2>
-
-      <div id="results">
-        Memuat hasil...
-      </div>
-
-    </div>
-
-  </div>
+<button
+  class="logout"
+  onclick="logout()"
+>
+Keluar
+</button>
 
 </div>
 
 
-<script>
+<!-- STATISTIK -->
 
+<div class="grid">
+
+<div class="card">
+
+<div class="muted">
+Total Pemilih
+</div>
+
+<div id="voters" class="stat">
+—
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="muted">
+Sudah Memilih
+</div>
+
+<div id="voted" class="stat">
+—
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="muted">
+Suara Masuk
+</div>
+
+<div id="votes" class="stat">
+—
+</div>
+
+</div>
+
+</div>
+
+
+<!-- PENGATURAN -->
+
+<section class="card">
+
+<h2>⚙️ Pengaturan Pemilihan</h2>
+
+<label>Nama pemilihan</label>
+
+<input id="election_name">
+
+
+<label>Mulai</label>
+
+<input
+  id="start_at"
+  type="datetime-local"
+>
+
+
+<label>Selesai</label>
+
+<input
+  id="end_at"
+  type="datetime-local"
+>
+
+
+<label>Waktu per siswa (menit)</label>
+
+<input
+  id="minutes"
+  type="number"
+  min="1"
+  max="30"
+>
+
+
+<label>Status</label>
+
+<select id="status">
+<option value="draft">Draft</option>
+<option value="open">Buka</option>
+<option value="paused">Jeda</option>
+<option value="closed">Tutup</option>
+</select>
+
+
+<label>Hasil</label>
+
+<select id="results_mode">
+<option value="hidden">Sembunyikan</option>
+<option value="after_closed">Setelah ditutup</option>
+<option value="manual">Manual</option>
+</select>
+
+
+<button
+  class="success"
+  onclick="saveSettings()"
+>
+Simpan Pengaturan
+</button>
+
+<p id="settingsMsg" class="msg"></p>
+
+</section>
+
+
+<!-- FOTO KANDIDAT -->
+
+<section class="card">
+
+<h2>📸 Foto Kandidat</h2>
+
+<p class="muted">
+Upload foto masing-masing pasangan kandidat.
+Foto akan otomatis muncul di halaman voting.
+</p>
+
+<div
+  id="candidateList"
+  class="candidates"
+>
+Memuat kandidat...
+</div>
+
+<p id="photoMessage" class="msg"></p>
+
+</section>
+
+
+</section>
+
+</main>
+
+
+<script>
 
 // =====================================================
 // SUPABASE
 // =====================================================
 
 const SUPABASE_URL =
-  "https://uctbslkumtrlwbonvutz.supabase.co";
+"https://uctbslkumtrlwbonvutz.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_IcsnBvHUXh6q1I4nV4xTNA_vsYYxxbv";
+"sb_publishable_IcsnBvHUXh6q1I4nV4xTNA_vsYYxxbv";
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-// DATA EXCEL SEMENTARA
-let excelVoters = [];
+const client =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 
 // =====================================================
 // LOGIN
 // =====================================================
 
-async function login() {
+async function login(){
+
+  const msg =
+    document.getElementById("loginMsg");
+
+  msg.textContent =
+    "Memeriksa...";
+
 
   const email =
     document
-      .getElementById("email")
+      .getElementById("username")
       .value
       .trim();
+
 
   const password =
     document
       .getElementById("password")
       .value;
 
-  const message =
-    document
-      .getElementById("loginMessage");
 
-  message.textContent = "";
+  if(!email || !password){
 
-
-  if (!email || !password) {
-
-    message.textContent =
+    msg.textContent =
       "Email dan password wajib diisi.";
 
     return;
   }
 
 
-  const { error } =
-    await supabaseClient.auth.signInWithPassword({
-      email,
-      password
+  const {
+    data,
+    error
+  } =
+    await client.auth.signInWithPassword({
+      email:email,
+      password:password
     });
 
 
-  if (error) {
+  if(error){
 
-    message.textContent =
+    msg.textContent =
       "Login gagal: " +
       error.message;
 
@@ -599,70 +453,41 @@ async function login() {
   }
 
 
-  await checkAdmin();
-}
-
-
-// =====================================================
-// CEK ADMIN
-// =====================================================
-
-async function checkAdmin() {
-
   const {
-    data: { user }
+    data:profile,
+    error:profileError
   } =
-    await supabaseClient.auth.getUser();
-
-
-  if (!user) {
-
-    showLogin();
-
-    return;
-  }
-
-
-  const {
-    data: admin,
-    error
-  } =
-    await supabaseClient
+    await client
       .from("admin_profiles")
-      .select("display_name, role")
-      .eq("user_id", user.id)
+      .select("display_name,role")
+      .eq("user_id",data.user.id)
       .maybeSingle();
 
 
-  if (error) {
+  if(profileError){
 
-    document
-      .getElementById("loginMessage")
-      .textContent =
-        "Gagal memeriksa admin: " +
-        error.message;
+    await client.auth.signOut();
 
-    await supabaseClient.auth.signOut();
+    msg.textContent =
+      profileError.message;
 
     return;
   }
 
 
-  if (!admin) {
+  if(!profile){
 
-    document
-      .getElementById("loginMessage")
-      .textContent =
-        "Akun ini bukan admin.";
+    await client.auth.signOut();
 
-    await supabaseClient.auth.signOut();
+    msg.textContent =
+      "Akun ini bukan admin.";
 
     return;
   }
 
 
   document
-    .getElementById("loginBox")
+    .getElementById("login")
     .classList.add("hidden");
 
 
@@ -674,26 +499,26 @@ async function checkAdmin() {
   document
     .getElementById("adminName")
     .textContent =
-      admin.display_name +
+      profile.display_name +
       " • " +
-      admin.role;
+      profile.role;
 
 
-  await loadDashboard();
+  await loadAll();
 }
 
 
 // =====================================================
-// LOAD DASHBOARD
+// LOAD SEMUA
 // =====================================================
 
-async function loadDashboard() {
+async function loadAll(){
 
   await loadSettings();
 
-  await loadStatistics();
+  await loadStats();
 
-  await loadResults();
+  await loadCandidates();
 
 }
 
@@ -702,171 +527,155 @@ async function loadDashboard() {
 // SETTINGS
 // =====================================================
 
-async function loadSettings() {
+function toLocal(v){
+
+  if(!v)
+    return "";
+
+  return new Date(v)
+    .toISOString()
+    .slice(0,16);
+}
+
+
+async function loadSettings(){
 
   const {
     data,
     error
   } =
-    await supabaseClient
+    await client
       .from("settings")
       .select("*")
-      .eq("id", 1)
+      .eq("id",1)
       .single();
 
 
-  if (error) {
+  if(error){
 
     document
-      .getElementById("statusMessage")
+      .getElementById("settingsMsg")
       .textContent =
-        "Gagal membaca settings: " +
         error.message;
 
     return;
   }
 
 
-  const badge =
-    document
-      .getElementById("statusBadge");
-
-
-  badge.textContent =
-    data.status.toUpperCase();
-
-
-  badge.className =
-    "status " +
-    data.status;
+  document
+    .getElementById("election_name")
+    .value =
+      data.election_name || "";
 
 
   document
-    .getElementById("startTime")
-    .textContent =
-      formatDate(data.start_at);
+    .getElementById("start_at")
+    .value =
+      toLocal(data.start_at);
 
 
   document
-    .getElementById("endTime")
-    .textContent =
-      formatDate(data.end_at);
+    .getElementById("end_at")
+    .value =
+      toLocal(data.end_at);
+
+
+  document
+    .getElementById("minutes")
+    .value =
+      data.minutes_per_voter || 5;
+
+
+  document
+    .getElementById("status")
+    .value =
+      data.status;
+
+
+  document
+    .getElementById("results_mode")
+    .value =
+      data.results_mode;
 
 }
 
 
 // =====================================================
-// BUKA PEMILIHAN
+// SAVE SETTINGS
 // =====================================================
 
-async function openElection() {
+async function saveSettings(){
 
-  const start =
-    new Date();
-
-
-  // 9 JAM
-  const end =
-    new Date(
-      start.getTime() +
-      9 * 60 * 60 * 1000
-    );
-
-
-  const { error } =
-    await supabaseClient
+  const {
+    error
+  } =
+    await client
       .from("settings")
       .update({
 
-        status: "open",
+        election_name:
+          document
+            .getElementById("election_name")
+            .value,
 
         start_at:
-          start.toISOString(),
+          document
+            .getElementById("start_at")
+            .value
+            ?
+            new Date(
+              document
+                .getElementById("start_at")
+                .value
+            ).toISOString()
+            :
+            null,
 
         end_at:
-          end.toISOString(),
+          document
+            .getElementById("end_at")
+            .value
+            ?
+            new Date(
+              document
+                .getElementById("end_at")
+                .value
+            ).toISOString()
+            :
+            null,
+
+        minutes_per_voter:
+          Number(
+            document
+              .getElementById("minutes")
+              .value
+          ),
+
+        status:
+          document
+            .getElementById("status")
+            .value,
+
+        results_mode:
+          document
+            .getElementById("results_mode")
+            .value,
 
         updated_at:
           new Date().toISOString()
 
       })
-      .eq("id", 1);
-
-
-  if (error) {
-
-    document
-      .getElementById("statusMessage")
-      .textContent =
-        "Gagal membuka pemilihan: " +
-        error.message;
-
-    return;
-  }
+      .eq("id",1);
 
 
   document
-    .getElementById("statusMessage")
+    .getElementById("settingsMsg")
     .textContent =
-      "Pemilihan berhasil dibuka selama 9 jam.";
-
-
-  await loadSettings();
-
-}
-
-
-// =====================================================
-// TUTUP PEMILIHAN
-// =====================================================
-
-async function closeElection() {
-
-  const yakin =
-    confirm(
-      "Yakin ingin menutup pemilihan?"
-    );
-
-
-  if (!yakin) return;
-
-
-  const { error } =
-    await supabaseClient
-      .from("settings")
-      .update({
-
-        status: "closed",
-
-        end_at:
-          new Date().toISOString(),
-
-        updated_at:
-          new Date().toISOString()
-
-      })
-      .eq("id", 1);
-
-
-  if (error) {
-
-    document
-      .getElementById("statusMessage")
-      .textContent =
-        "Gagal menutup pemilihan: " +
-        error.message;
-
-    return;
-  }
-
-
-  document
-    .getElementById("statusMessage")
-    .textContent =
-      "Pemilihan berhasil ditutup.";
-
-
-  await loadSettings();
+      error
+      ?
+      error.message
+      :
+      "Pengaturan tersimpan ✓";
 
 }
 
@@ -875,847 +684,470 @@ async function closeElection() {
 // STATISTIK
 // =====================================================
 
-async function loadStatistics() {
+async function loadStats(){
 
   const {
-    data,
-    error
+    count:total
   } =
-    await supabaseClient
+    await client
       .from("voters")
-      .select("has_voted");
+      .select("*",{
+        count:"exact",
+        head:true
+      });
 
 
-  if (error) {
-
-    console.log(error);
-
-    return;
-  }
-
-
-  const total =
-    data.length;
-
-
-  const voted =
-    data.filter(
-      voter =>
-        voter.has_voted
-    ).length;
+  const {
+    count:voted
+  } =
+    await client
+      .from("voters")
+      .select("*",{
+        count:"exact",
+        head:true
+      })
+      .eq("has_voted",true);
 
 
-  const notVoted =
-    total - voted;
-
-
-  document
-    .getElementById("totalVoters")
-    .textContent =
-      total;
+  const {
+    count:voteCount
+  } =
+    await client
+      .from("votes")
+      .select("*",{
+        count:"exact",
+        head:true
+      });
 
 
   document
-    .getElementById("totalVoted")
+    .getElementById("voters")
     .textContent =
-      voted;
+      total ?? 0;
 
 
   document
-    .getElementById("totalNotVoted")
+    .getElementById("voted")
     .textContent =
-      notVoted;
+      voted ?? 0;
+
+
+  document
+    .getElementById("votes")
+    .textContent =
+      voteCount ?? 0;
 
 }
 
 
 // =====================================================
-// HASIL SUARA
+// LOAD KANDIDAT
 // =====================================================
 
-async function loadResults() {
+async function loadCandidates(){
+
+  const box =
+    document
+      .getElementById("candidateList");
+
+
+  box.textContent =
+    "Memuat kandidat...";
+
 
   const {
-    data: candidates,
+    data:candidates,
     error
   } =
-    await supabaseClient
+    await client
       .from("candidates")
-      .select("*")
-      .eq("active", true)
+      .select(
+        "id,number,chairman_name,vice_name,vision,mission,photo_url"
+      )
+      .eq("active",true)
       .order("number");
 
 
-  if (error) {
+  if(error){
 
-    document
-      .getElementById("results")
-      .textContent =
-        "Gagal membaca kandidat: " +
-        error.message;
+    box.textContent =
+      "Gagal membaca kandidat: " +
+      error.message;
 
     return;
   }
 
 
-  const {
-    data: votes,
-    error: voteError
-  } =
-    await supabaseClient
-      .from("votes")
-      .select("candidate_id");
+  if(!candidates || candidates.length === 0){
 
-
-  if (voteError) {
-
-    document
-      .getElementById("results")
-      .textContent =
-        "Gagal membaca suara: " +
-        voteError.message;
+    box.textContent =
+      "Belum ada kandidat.";
 
     return;
   }
 
 
-  const resultBox =
-    document
-      .getElementById("results");
+  box.innerHTML = "";
 
 
-  resultBox.innerHTML = "";
+  candidates.forEach(candidate => {
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "candidate";
 
 
-  candidates.forEach(
-    candidate => {
-
-      const total =
-        votes.filter(
-          vote =>
-            vote.candidate_id ===
-            candidate.id
-        ).length;
-
-
-      const div =
-        document.createElement("div");
-
-
-      div.className =
-        "candidate";
-
-
-      div.innerHTML = `
-
-        <div>
-
-          <div class="candidate-name">
-
-            No. ${candidate.number}
-
-            —
-
-            ${escapeHtml(
-              candidate.chairman_name
-            )}
-
-            &
-
-            ${escapeHtml(
-              candidate.vice_name
-            )}
-
-          </div>
-
-          <div class="muted">
-
-            ${escapeHtml(
-              candidate.vision || ""
-            )}
-
-          </div>
-
-        </div>
-
-
-        <div class="votes">
-
-          ${total} suara
-
-        </div>
-
+    const photoHTML =
+      candidate.photo_url
+      ?
+      `
+      <img
+        class="candidate-photo"
+        src="${esc(candidate.photo_url)}"
+        alt="Foto kandidat"
+      >
+      `
+      :
+      `
+      <div class="no-photo">
+        📷 Belum ada foto
+      </div>
       `;
 
 
-      resultBox.appendChild(div);
+    div.innerHTML = `
 
-    }
-  );
+      ${photoHTML}
 
-}
-
-
-// =====================================================
-// BACA EXCEL
-// =====================================================
-
-async function previewExcel() {
-
-  const file =
-    document
-      .getElementById("excelFile")
-      .files[0];
-
-
-  const message =
-    document
-      .getElementById("excelMessage");
-
-
-  const preview =
-    document
-      .getElementById("excelPreview");
-
-
-  const importButton =
-    document
-      .getElementById("importButton");
-
-
-  message.textContent = "";
-
-  message.classList.remove(
-    "success-message"
-  );
-
-  preview.innerHTML = "";
-
-  importButton.classList.add(
-    "hidden"
-  );
-
-
-  if (!file) {
-
-    message.textContent =
-      "Pilih file Excel terlebih dahulu.";
-
-    return;
-  }
-
-
-  try {
-
-    // Baca file
-
-    const buffer =
-      await file.arrayBuffer();
-
-
-    const workbook =
-      XLSX.read(
-        buffer,
-        {
-          type: "array"
-        }
-      );
-
-
-    // Ambil sheet pertama
-
-    const sheet =
-      workbook.Sheets[
-        workbook.SheetNames[0]
-      ];
-
-
-    // Excel menjadi array
-
-    const rows =
-      XLSX.utils.sheet_to_json(
-        sheet,
-        {
-          header: 1,
-          defval: ""
-        }
-      );
-
-
-    if (rows.length < 2) {
-
-      message.textContent =
-        "Excel tidak memiliki data.";
-
-      return;
-    }
-
-
-    // =================================================
-    // HEADER
-    // =================================================
-
-    const headers =
-      rows[0].map(
-        value =>
-          String(value)
-            .trim()
-            .toUpperCase()
-            .replace(/\s+/g, "_")
-      );
-
-
-    const namaIndex =
-      headers.indexOf("NAMA");
-
-
-    const kelasIndex =
-      headers.indexOf("KELAS");
-
-
-    const tipeIndex =
-      headers.indexOf(
-        "TIPE_PEMILIH"
-      );
-
-
-    if (
-      namaIndex === -1 ||
-      kelasIndex === -1 ||
-      tipeIndex === -1
-    ) {
-
-      message.textContent =
-        "Header Excel harus: NAMA | KELAS | TIPE_PEMILIH";
-
-      return;
-    }
-
-
-    excelVoters = [];
-
-
-    // =================================================
-    // DATA PEMILIH
-    // =================================================
-
-    for (
-      let i = 1;
-      i < rows.length;
-      i++
-    ) {
-
-      const row =
-        rows[i];
-
-
-      const nama =
-        String(
-          row[namaIndex] || ""
-        ).trim();
-
-
-      const kelas =
-        String(
-          row[kelasIndex] || ""
-        ).trim();
-
-
-      const tipe =
-        String(
-          row[tipeIndex] || ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-      // Lewati baris kosong
-
-      if (!nama) {
-
-        continue;
-      }
-
-
-      // Validasi tipe
-
-      if (
-        tipe !== "siswa" &&
-        tipe !== "guru"
-      ) {
-
-        message.textContent =
-          `Baris ${i + 1}: tipe harus Siswa atau Guru.`;
-
-        excelVoters = [];
-
-        return;
-      }
-
-
-      // Siswa wajib punya kelas
-
-      if (
-        tipe === "siswa" &&
-        !kelas
-      ) {
-
-        message.textContent =
-          `Baris ${i + 1}: siswa wajib memiliki kelas.`;
-
-        excelVoters = [];
-
-        return;
-      }
-
-
-      excelVoters.push({
-
-        nama: nama,
-
-        kelas:
-          tipe === "guru"
-            ? null
-            : kelas,
-
-        tipe_pemilih:
-          tipe
-
-      });
-
-    }
-
-
-    // =================================================
-    // HASIL PEMBACAAN
-    // =================================================
-
-    if (
-      excelVoters.length === 0
-    ) {
-
-      message.textContent =
-        "Tidak ada data pemilih yang valid.";
-
-      return;
-    }
-
-
-    // =================================================
-    // PREVIEW
-    // =================================================
-
-    let html = `
-
-      <p class="muted">
-
-        Ditemukan
-
-        <b>
-          ${excelVoters.length}
-        </b>
-
-        pemilih.
-
-      </p>
-
-
-      <div class="preview-wrapper">
-
-        <table class="preview-table">
-
-          <thead>
-
-            <tr>
-
-              <th>No.</th>
-
-              <th>Nama</th>
-
-              <th>Kelas</th>
-
-              <th>Tipe</th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-    `;
-
-
-    excelVoters.forEach(
-      (voter, index) => {
-
-        const badgeClass =
-          voter.tipe_pemilih === "siswa"
-            ? "badge-siswa"
-            : "badge-guru";
-
-
-        html += `
-
-          <tr>
-
-            <td>
-              ${index + 1}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                voter.nama
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                voter.kelas || "-"
-              )}
-            </td>
-
-            <td>
-
-              <span
-                class="badge ${badgeClass}"
-              >
-
-                ${escapeHtml(
-                  voter.tipe_pemilih
-                )}
-
-              </span>
-
-            </td>
-
-          </tr>
-
-        `;
-
-      }
-    );
-
-
-    html += `
-
-          </tbody>
-
-        </table>
-
+      <div class="candidate-number">
+        NOMOR ${esc(candidate.number)}
       </div>
 
+      <div class="candidate-name">
+        ${esc(candidate.chairman_name)}
+        <br>
+        &
+        <br>
+        ${esc(candidate.vice_name)}
+      </div>
+
+      <p class="muted">
+        <b>Visi:</b><br>
+        ${esc(candidate.vision || "-")}
+      </p>
+
+      <p class="muted">
+        <b>Misi:</b><br>
+        ${esc(candidate.mission || "-")}
+      </p>
+
+      <label>
+        Pilih foto
+      </label>
+
+      <input
+        class="file-input"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        id="file-${candidate.id}"
+      >
+
+      <button
+        class="upload-button"
+        onclick="uploadPhoto('${candidate.id}')"
+      >
+        📤 Upload Foto
+      </button>
+
+      ${
+        candidate.photo_url
+        ?
+        `
+        <button
+          class="delete-button"
+          onclick="deletePhoto('${candidate.id}')"
+        >
+          🗑️ Hapus Foto
+        </button>
+        `
+        :
+        ""
+      }
+
     `;
 
 
-    preview.innerHTML =
-      html;
+    box.appendChild(div);
+
+  });
+
+}
 
 
-    importButton.classList.remove(
-      "hidden"
+// =====================================================
+// UPLOAD FOTO
+// =====================================================
+
+async function uploadPhoto(candidateId){
+
+  const input =
+    document.getElementById(
+      "file-" + candidateId
     );
-
-
-    message.classList.add(
-      "success-message"
-    );
-
-
-    message.textContent =
-      "Excel berhasil dibaca. Data siap diimport.";
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    message.textContent =
-      "Gagal membaca Excel: " +
-      error.message;
-
-  }
-
-}
-
-
-// =====================================================
-// GENERATE KODE PEMILIH
-// =====================================================
-
-function generateVoterCode() {
-
-  const chars =
-    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-
-  let code = "";
-
-
-  for (
-    let i = 0;
-    i < 6;
-    i++
-  ) {
-
-    code +=
-      chars[
-        Math.floor(
-          Math.random() *
-          chars.length
-        )
-      ];
-
-  }
-
-
-  return code;
-
-}
-
-
-// =====================================================
-// CEK KODE SUDAH ADA
-// =====================================================
-
-async function codeExists(code) {
-
-  const {
-    data
-  } =
-    await supabaseClient
-      .from("voters")
-      .select("id")
-      .eq("voter_code", code)
-      .maybeSingle();
-
-
-  return !!data;
-
-}
-
-
-// =====================================================
-// GENERATE KODE UNIK
-// =====================================================
-
-async function generateUniqueCode() {
-
-  let code;
-
-
-  do {
-
-    code =
-      generateVoterCode();
-
-  } while (
-    await codeExists(code)
-  );
-
-
-  return code;
-
-}
-
-
-// =====================================================
-// IMPORT KE DATABASE
-// =====================================================
-
-async function importVoters() {
-
-  if (
-    !excelVoters.length
-  ) {
-
-    return;
-  }
-
-
-  const yakin =
-    confirm(
-      `Import ${excelVoters.length} pemilih ke database?`
-    );
-
-
-  if (!yakin) {
-
-    return;
-  }
 
 
   const message =
-    document
-      .getElementById("excelMessage");
+    document.getElementById(
+      "photoMessage"
+    );
 
 
-  const importButton =
-    document
-      .getElementById("importButton");
+  if(!input || !input.files.length){
+
+    message.textContent =
+      "❌ Pilih foto terlebih dahulu.";
+
+    return;
+  }
 
 
-  importButton.disabled =
-    true;
+  const file =
+    input.files[0];
 
 
-  message.classList.remove(
-    "success-message"
-  );
+  // MAKSIMAL 5 MB
+
+  if(file.size > 5 * 1024 * 1024){
+
+    message.textContent =
+      "❌ Ukuran foto maksimal 5 MB.";
+
+    return;
+  }
+
+
+  // FORMAT FOTO
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+
+  if(!allowedTypes.includes(file.type)){
+
+    message.textContent =
+      "❌ Format harus JPG, PNG, atau WEBP.";
+
+    return;
+  }
 
 
   message.textContent =
-    "Membuat kode pemilih...";
+    "⏳ Mengupload foto...";
 
 
-  try {
+  try{
 
-    const rows = [];
-
-
-    // Buat kode setiap pemilih
-
-    for (
-      const voter of excelVoters
-    ) {
-
-      const code =
-        await generateUniqueCode();
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
 
 
-      rows.push({
-
-        nis:
-          "V-" +
-          crypto
-            .randomUUID()
-            .replaceAll("-", "")
-            .slice(0, 12),
-
-        name:
-          voter.nama,
-
-        kelas:
-          voter.kelas,
-
-        tipe_pemilih:
-          voter.tipe_pemilih,
-
-        pin_hash:
-          "CODE_PENDING",
-
-        voter_code:
-          code,
-
-        has_voted:
-          false
-
-      });
-
-    }
+    const fileName =
+      candidateId +
+      "-" +
+      Date.now() +
+      "." +
+      extension;
 
 
-    message.textContent =
-      "Memasukkan data ke database...";
-
+    // UPLOAD KE STORAGE
 
     const {
-      error
+      error:uploadError
     } =
-      await supabaseClient
-        .from("voters")
-        .insert(rows);
+      await client
+        .storage
+        .from("candidate-photos")
+        .upload(
+          fileName,
+          file,
+          {
+            cacheControl:"3600",
+            upsert:false
+          }
+        );
 
 
-    if (error) {
-
-      throw error;
-
-    }
+    if(uploadError)
+      throw uploadError;
 
 
-    // =================================================
-    // BERHASIL
-    // =================================================
+    // URL PUBLIC
 
-    message.classList.add(
-      "success-message"
-    );
+    const {
+      data:urlData
+    } =
+      client
+        .storage
+        .from("candidate-photos")
+        .getPublicUrl(
+          fileName
+        );
+
+
+    const photoUrl =
+      urlData.publicUrl;
+
+
+    // SIMPAN URL KE DATABASE
+
+    const {
+      error:updateError
+    } =
+      await client
+        .from("candidates")
+        .update({
+          photo_url:photoUrl
+        })
+        .eq(
+          "id",
+          candidateId
+        );
+
+
+    if(updateError)
+      throw updateError;
 
 
     message.textContent =
-      `✅ Berhasil memasukkan ${rows.length} pemilih.`;
+      "✅ Foto berhasil diupload.";
 
 
+    await loadCandidates();
 
-    // =================================================
-    // TAMPILKAN KODE
-    // =================================================
-
-    let codeText =
-      "DAFTAR KODE PEMILIH\n\n";
-
-
-    rows.forEach(
-      (row, index) => {
-
-        codeText +=
-          `${index + 1}. ` +
-          `${row.name} → ` +
-          `${row.voter_code}\n`;
-
-      }
-    );
-
-
-    document
-      .getElementById(
-        "excelPreview"
-      )
-      .innerHTML = `
-
-        <div class="code-box">
-
-          ${escapeHtml(
-            codeText
-          )}
-
-        </div>
-
-      `;
-
-
-    importButton.classList.add(
-      "hidden"
-    );
-
-
-    excelVoters = [];
-
-
-    document
-      .getElementById(
-        "excelFile"
-      )
-      .value = "";
-
-
-    await loadStatistics();
-
-
-  } catch (error) {
+  }
+  catch(error){
 
     console.error(error);
 
-
     message.textContent =
-      "Import gagal: " +
+      "❌ Upload gagal: " +
       error.message;
 
   }
 
+}
 
-  importButton.disabled =
-    false;
+
+// =====================================================
+// HAPUS FOTO
+// =====================================================
+
+async function deletePhoto(candidateId){
+
+  const yakin =
+    confirm(
+      "Yakin ingin menghapus foto kandidat ini?"
+    );
+
+
+  if(!yakin)
+    return;
+
+
+  const message =
+    document.getElementById(
+      "photoMessage"
+    );
+
+
+  try{
+
+    const {
+      data:candidate,
+      error:getError
+    } =
+      await client
+        .from("candidates")
+        .select("photo_url")
+        .eq("id",candidateId)
+        .single();
+
+
+    if(getError)
+      throw getError;
+
+
+    // HAPUS URL DARI DATABASE
+
+    const {
+      error:updateError
+    } =
+      await client
+        .from("candidates")
+        .update({
+          photo_url:null
+        })
+        .eq(
+          "id",
+          candidateId
+        );
+
+
+    if(updateError)
+      throw updateError;
+
+
+    // HAPUS FILE STORAGE
+
+    if(candidate.photo_url){
+
+      const parts =
+        candidate.photo_url
+          .split("/candidate-photos/");
+
+
+      if(parts.length > 1){
+
+        const filePath =
+          decodeURIComponent(parts[1]);
+
+
+        await client
+          .storage
+          .from("candidate-photos")
+          .remove([
+            filePath
+          ]);
+
+      }
+
+    }
+
+
+    message.textContent =
+      "✅ Foto berhasil dihapus.";
+
+
+    await loadCandidates();
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    message.textContent =
+      "❌ Gagal menghapus foto: " +
+      error.message;
+
+  }
 
 }
 
@@ -1724,26 +1156,13 @@ async function importVoters() {
 // LOGOUT
 // =====================================================
 
-async function logout() {
+async function logout(){
 
-  await supabaseClient
-    .auth
-    .signOut();
+  await client.auth.signOut();
 
-
-  showLogin();
-
-}
-
-
-// =====================================================
-// SHOW LOGIN
-// =====================================================
-
-function showLogin() {
 
   document
-    .getElementById("loginBox")
+    .getElementById("login")
     .classList.remove("hidden");
 
 
@@ -1755,50 +1174,95 @@ function showLogin() {
 
 
 // =====================================================
-// FORMAT TANGGAL
-// =====================================================
-
-function formatDate(date) {
-
-  if (!date) {
-
-    return "-";
-
-  }
-
-
-  return new Date(date)
-    .toLocaleString(
-      "id-ID"
-    );
-
-}
-
-
-// =====================================================
 // ESCAPE HTML
 // =====================================================
 
-function escapeHtml(text) {
+function esc(value){
 
-  const div =
-    document.createElement(
-      "div"
+  return String(value ?? "")
+    .replace(
+      /[&<>"']/g,
+      function(m){
+
+        return {
+
+          "&":"&amp;",
+          "<":"&lt;",
+          ">":"&gt;",
+          '"':"&quot;",
+          "'":"&#039;"
+
+        }[m];
+
+      }
     );
-
-
-  div.textContent =
-    text || "";
-
-
-  return div.innerHTML;
 
 }
 
 
 // =====================================================
-// CEK SESSION
+// CEK SESSION ADMIN
 // =====================================================
+
+async function checkAdmin(){
+
+  const {
+    data:{
+      user
+    }
+  } =
+    await client.auth.getUser();
+
+
+  if(!user)
+    return;
+
+
+  const {
+    data:profile
+  } =
+    await client
+      .from("admin_profiles")
+      .select(
+        "display_name,role"
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
+
+  if(!profile){
+
+    await client.auth.signOut();
+
+    return;
+  }
+
+
+  document
+    .getElementById("login")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("dashboard")
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById("adminName")
+    .textContent =
+      profile.display_name +
+      " • " +
+      profile.role;
+
+
+  await loadAll();
+
+}
+
 
 checkAdmin();
 

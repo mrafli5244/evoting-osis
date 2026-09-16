@@ -90,6 +90,7 @@
 
     button:disabled {
       opacity: .5;
+      cursor: not-allowed;
     }
 
     .status {
@@ -147,7 +148,10 @@
   </div>
 
 
-  <!-- LOGIN -->
+  <!-- ==============================
+       LOGIN PEMILIH
+  =============================== -->
+
   <div id="loginPage">
 
     <label for="nama">
@@ -198,7 +202,10 @@
   </div>
 
 
-  <!-- BERHASIL LOGIN -->
+  <!-- ==============================
+       BERHASIL LOGIN
+  =============================== -->
+
   <div
     id="welcomePage"
     class="hidden"
@@ -237,7 +244,6 @@
 
 <script>
 
-
 // =====================================================
 // SUPABASE
 // =====================================================
@@ -255,7 +261,10 @@ const supabaseClient =
   );
 
 
-// Pemilih yang sedang login
+// =====================================================
+// VARIABEL PEMILIH
+// =====================================================
+
 let currentVoter = null;
 
 
@@ -275,7 +284,9 @@ async function checkElectionStatus() {
   } =
     await supabaseClient
       .from("settings")
-      .select("status,start_at,end_at")
+      .select(
+        "status,start_at,end_at"
+      )
       .eq("id", 1)
       .single();
 
@@ -284,6 +295,9 @@ async function checkElectionStatus() {
 
     statusBox.textContent =
       "Status pemilihan tidak dapat dibaca.";
+
+    statusBox.style.color =
+      "#fca5a5";
 
     return;
   }
@@ -368,6 +382,10 @@ async function loginPemilih() {
     "message";
 
 
+  // ==============================
+  // VALIDASI INPUT
+  // ==============================
+
   if (!nama || !kelas) {
 
     message.textContent =
@@ -389,9 +407,9 @@ async function loginPemilih() {
 
   try {
 
-    // ================================================
+    // ==============================
     // CEK STATUS
-    // ================================================
+    // ==============================
 
     const {
       data: settings,
@@ -399,7 +417,9 @@ async function loginPemilih() {
     } =
       await supabaseClient
         .from("settings")
-        .select("status,start_at,end_at")
+        .select(
+          "status,start_at,end_at"
+        )
         .eq("id", 1)
         .single();
 
@@ -436,7 +456,7 @@ async function loginPemilih() {
     if (!isOpen) {
 
       message.textContent =
-        "Pemilihan saat ini sedang ditutup.";
+        "🔴 Pemilihan saat ini sedang ditutup.";
 
       message.classList.add(
         "error"
@@ -446,9 +466,9 @@ async function loginPemilih() {
     }
 
 
-    // ================================================
-    // CARI PEMILIH
-    // ================================================
+    // ==============================
+    // CARI DATA PEMILIH
+    // ==============================
 
     const {
       data: voter,
@@ -477,6 +497,10 @@ async function loginPemilih() {
     }
 
 
+    // ==============================
+    // PEMILIH TIDAK DITEMUKAN
+    // ==============================
+
     if (!voter) {
 
       message.textContent =
@@ -490,9 +514,9 @@ async function loginPemilih() {
     }
 
 
-    // ================================================
-    // CEK SUDAH MEMILIH
-    // ================================================
+    // ==============================
+    // SUDAH MEMILIH
+    // ==============================
 
     if (voter.has_voted) {
 
@@ -507,13 +531,39 @@ async function loginPemilih() {
     }
 
 
-    // ================================================
-    // LOGIN BERHASIL
-    // ================================================
+    // ==============================
+    // SIMPAN PEMILIH
+    // ==============================
 
     currentVoter =
       voter;
 
+
+    // Simpan sesi pemilih
+    // agar halaman voting mengenali
+    // siapa yang sedang memilih.
+
+    sessionStorage.setItem(
+      "voter_id",
+      voter.id
+    );
+
+
+    sessionStorage.setItem(
+      "voter_name",
+      voter.name
+    );
+
+
+    sessionStorage.setItem(
+      "voter_kelas",
+      voter.kelas || ""
+    );
+
+
+    // ==============================
+    // TAMPILKAN KONFIRMASI
+    // ==============================
 
     document
       .getElementById(
@@ -545,8 +595,9 @@ async function loginPemilih() {
             : ""
         );
 
+  }
 
-  } catch (error) {
+  catch (error) {
 
     console.error(error);
 
@@ -558,7 +609,9 @@ async function loginPemilih() {
       "error"
     );
 
-  } finally {
+  }
+
+  finally {
 
     button.disabled =
       false;
@@ -572,24 +625,13 @@ async function loginPemilih() {
 
 
 // =====================================================
-// LANJUT VOTING
+// LANJUT KE HALAMAN VOTING
 // =====================================================
 
 function lanjutVoting() {
 
-  /*
-    Untuk sekarang belum pindah ke halaman kandidat.
-
-    Tahap berikutnya kita akan membuat:
-    voting.html
-
-    dan menghubungkannya dengan
-    currentVoter.
-  */
-
-  alert(
-    "Login berhasil. Halaman kandidat akan kita buat di tahap berikutnya."
-  );
+  window.location.href =
+    "voting/";
 
 }
 

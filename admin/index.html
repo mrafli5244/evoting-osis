@@ -8,9 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -43,7 +41,7 @@
       margin-bottom: 20px;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 15px;
       margin: 8px 0;
@@ -65,28 +63,16 @@
       margin-top: 10px;
     }
 
-    .primary {
-      background: #2563eb;
-      color: white;
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
     }
 
-    .danger {
-      background: #dc2626;
-      color: white;
-    }
-
-    .success {
-      background: #16a34a;
-      color: white;
-    }
-
-    .muted {
-      color: #9ca3af;
-    }
-
-    .hidden {
-      display: none;
-    }
+    .primary { background: #2563eb; color: white; }
+    .danger { background: #dc2626; color: white; }
+    .success { background: #16a34a; color: white; }
+    .muted { color: #9ca3af; }
+    .hidden { display: none; }
 
     .status {
       display: inline-block;
@@ -161,6 +147,33 @@
       color: #fca5a5;
     }
 
+    .success-message {
+      color: #86efac;
+    }
+
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .preview-table th,
+    .preview-table td {
+      border-bottom: 1px solid #303946;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .code-box {
+      margin-top: 15px;
+      padding: 15px;
+      background: #080b10;
+      border: 1px solid #303946;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
     @media(max-width:700px) {
       .stats {
         grid-template-columns: 1fr;
@@ -169,6 +182,10 @@
       .candidate {
         flex-direction: column;
         align-items: flex-start;
+      }
+
+      .preview-table {
+        font-size: 14px;
       }
     }
   </style>
@@ -179,12 +196,16 @@
 <div class="container">
 
   <h1>🛠️ Dashboard Admin</h1>
+
   <div class="subtitle">
     E-Voting OSIS — Panel Pengelola
   </div>
 
+
   <!-- LOGIN -->
+
   <div id="loginBox" class="card">
+
     <h2>Login Admin</h2>
 
     <input
@@ -204,13 +225,19 @@
     </button>
 
     <div id="loginMessage" class="message"></div>
+
   </div>
 
 
   <!-- DASHBOARD -->
+
   <div id="dashboard" class="hidden">
 
+
+    <!-- ADMIN -->
+
     <div class="card">
+
       <h2>👋 Selamat datang</h2>
 
       <div id="adminName" class="muted">
@@ -220,16 +247,19 @@
       <button class="logout" onclick="logout()">
         Keluar
       </button>
+
     </div>
 
 
     <!-- STATUS -->
+
     <div class="card">
 
       <h2>⚙️ Status Pemilihan</h2>
 
       <div>
         Status:
+
         <span id="statusBadge" class="status">
           ...
         </span>
@@ -266,7 +296,59 @@
     </div>
 
 
+    <!-- IMPORT PEMILIH -->
+
+    <div class="card">
+
+      <h2>👥 Data Pemilih</h2>
+
+      <p class="muted">
+        Masukkan data siswa dan guru secara massal menggunakan CSV.
+      </p>
+
+      <p class="muted">
+        Format kolom:
+        <b>nama,kelas,tipe_pemilih</b>
+      </p>
+
+      <div class="code-box">
+nama,kelas,tipe_pemilih
+Aldi,XII IPA 1,siswa
+Ramdan,XII IPA 1,siswa
+Mahya,XII IPS 1,siswa
+Pak Budi,,guru
+      </div>
+
+      <input
+        id="csvFile"
+        type="file"
+        accept=".csv"
+      >
+
+      <button
+        class="primary"
+        onclick="previewCSV()"
+      >
+        📥 Baca File CSV
+      </button>
+
+      <div id="csvMessage" class="message"></div>
+
+      <div id="csvPreview"></div>
+
+      <button
+        id="importButton"
+        class="success hidden"
+        onclick="importVoters()"
+      >
+        ✅ Masukkan ke Database
+      </button>
+
+    </div>
+
+
     <!-- STATISTIK -->
+
     <div class="card">
 
       <h2>📊 Statistik</h2>
@@ -274,6 +356,7 @@
       <div class="stats">
 
         <div class="stat">
+
           <div class="muted">
             Total Pemilih
           </div>
@@ -284,10 +367,12 @@
           >
             0
           </div>
+
         </div>
 
 
         <div class="stat">
+
           <div class="muted">
             Sudah Memilih
           </div>
@@ -298,10 +383,12 @@
           >
             0
           </div>
+
         </div>
 
 
         <div class="stat">
+
           <div class="muted">
             Belum Memilih
           </div>
@@ -312,6 +399,7 @@
           >
             0
           </div>
+
         </div>
 
       </div>
@@ -320,6 +408,7 @@
 
 
     <!-- HASIL -->
+
     <div class="card">
 
       <h2>🗳️ Hasil Suara</h2>
@@ -355,7 +444,7 @@
 
 
   // ===============================
-  // LOGIN
+  // LOGIN ADMIN
   // ===============================
 
   async function login() {
@@ -372,20 +461,24 @@
     message.textContent = "";
 
     if (!email || !password) {
+
       message.textContent =
         "Email dan password wajib diisi.";
+
       return;
     }
 
-    const { data, error } =
+    const { error } =
       await supabaseClient.auth.signInWithPassword({
         email,
         password
       });
 
     if (error) {
+
       message.textContent =
         "Login gagal: " + error.message;
+
       return;
     }
 
@@ -405,7 +498,9 @@
     } = await supabaseClient.auth.getUser();
 
     if (!user) {
+
       showLogin();
+
       return;
     }
 
@@ -418,8 +513,10 @@
 
     if (error) {
 
-      document.getElementById("loginMessage").textContent =
-        "Gagal memeriksa admin: " + error.message;
+      document.getElementById("loginMessage")
+        .textContent =
+        "Gagal memeriksa admin: " +
+        error.message;
 
       await supabaseClient.auth.signOut();
 
@@ -428,7 +525,8 @@
 
     if (!admin) {
 
-      document.getElementById("loginMessage").textContent =
+      document.getElementById("loginMessage")
+        .textContent =
         "Akun ini bukan admin.";
 
       await supabaseClient.auth.signOut();
@@ -444,9 +542,9 @@
 
     document.getElementById("adminName")
       .textContent =
-        admin.display_name +
-        " • " +
-        admin.role;
+      admin.display_name +
+      " • " +
+      admin.role;
 
     await loadDashboard();
 
@@ -520,10 +618,11 @@
     const start =
       new Date();
 
+    // 9 JAM
     const end =
       new Date(
         start.getTime() +
-        30 * 60 * 1000
+        9 * 60 * 60 * 1000
       );
 
     const { error } =
@@ -549,7 +648,7 @@
 
     document.getElementById("statusMessage")
       .textContent =
-      "Pemilihan berhasil dibuka selama 30 menit.";
+      "Pemilihan berhasil dibuka selama 9 jam.";
 
     await loadSettings();
 
@@ -599,7 +698,7 @@
 
 
   // ===============================
-  // STATISTIK PEMILIH
+  // STATISTIK
   // ===============================
 
   async function loadStatistics() {
@@ -662,7 +761,6 @@
       return;
     }
 
-
     const { data: votes, error: voteError } =
       await supabaseClient
         .from("votes")
@@ -678,12 +776,10 @@
       return;
     }
 
-
     const resultBox =
       document.getElementById("results");
 
     resultBox.innerHTML = "";
-
 
     candidates.forEach(candidate => {
 
@@ -720,6 +816,473 @@
       resultBox.appendChild(div);
 
     });
+
+  }
+
+
+  // ===============================
+  // IMPORT CSV
+  // ===============================
+
+  let csvVoters = [];
+
+
+  function generateVoterCode() {
+
+    const chars =
+      "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    let code = "";
+
+    for (let i = 0; i < 6; i++) {
+
+      code += chars[
+        Math.floor(
+          Math.random() * chars.length
+        )
+      ];
+
+    }
+
+    return code;
+
+  }
+
+
+  async function codeExists(code) {
+
+    const { data } =
+      await supabaseClient
+        .from("voters")
+        .select("id")
+        .eq("voter_code", code)
+        .maybeSingle();
+
+    return !!data;
+
+  }
+
+
+  async function generateUniqueCode() {
+
+    let code;
+
+    do {
+
+      code =
+        generateVoterCode();
+
+    } while (
+      await codeExists(code)
+    );
+
+    return code;
+
+  }
+
+
+  async function previewCSV() {
+
+    const file =
+      document.getElementById("csvFile")
+        .files[0];
+
+    const message =
+      document.getElementById("csvMessage");
+
+    const preview =
+      document.getElementById("csvPreview");
+
+    const importButton =
+      document.getElementById("importButton");
+
+    message.textContent = "";
+
+    message.classList.remove(
+      "success-message"
+    );
+
+    preview.innerHTML = "";
+
+    importButton.classList.add(
+      "hidden"
+    );
+
+
+    if (!file) {
+
+      message.textContent =
+        "Pilih file CSV terlebih dahulu.";
+
+      return;
+    }
+
+
+    const text =
+      await file.text();
+
+
+    const lines =
+      text
+        .replace(/\r/g, "")
+        .split("\n")
+        .filter(
+          line => line.trim()
+        );
+
+
+    if (lines.length < 2) {
+
+      message.textContent =
+        "CSV tidak memiliki data.";
+
+      return;
+    }
+
+
+    const headers =
+      lines[0]
+        .split(",")
+        .map(
+          x =>
+            x.trim()
+              .toLowerCase()
+        );
+
+
+    const namaIndex =
+      headers.indexOf("nama");
+
+    const kelasIndex =
+      headers.indexOf("kelas");
+
+    const tipeIndex =
+      headers.indexOf("tipe_pemilih");
+
+
+    if (
+      namaIndex === -1 ||
+      kelasIndex === -1 ||
+      tipeIndex === -1
+    ) {
+
+      message.textContent =
+        "Format CSV salah. Gunakan: nama,kelas,tipe_pemilih";
+
+      return;
+    }
+
+
+    csvVoters = [];
+
+
+    for (
+      let i = 1;
+      i < lines.length;
+      i++
+    ) {
+
+      const values =
+        lines[i].split(",");
+
+      const nama =
+        (values[namaIndex] || "")
+          .trim();
+
+      const kelas =
+        (values[kelasIndex] || "")
+          .trim();
+
+      const tipe =
+        (values[tipeIndex] || "")
+          .trim()
+          .toLowerCase();
+
+
+      if (!nama) continue;
+
+
+      if (
+        tipe !== "siswa" &&
+        tipe !== "guru"
+      ) {
+
+        message.textContent =
+          `Baris ${i + 1}: tipe_pemilih harus siswa atau guru.`;
+
+        return;
+      }
+
+
+      if (
+        tipe === "siswa" &&
+        !kelas
+      ) {
+
+        message.textContent =
+          `Baris ${i + 1}: siswa wajib memiliki kelas.`;
+
+        return;
+      }
+
+
+      csvVoters.push({
+
+        nama,
+
+        kelas:
+          tipe === "guru"
+            ? null
+            : kelas,
+
+        tipe_pemilih:
+          tipe
+
+      });
+
+    }
+
+
+    if (!csvVoters.length) {
+
+      message.textContent =
+        "Tidak ada data valid.";
+
+      return;
+    }
+
+
+    let html = `
+
+      <p class="muted">
+        ${csvVoters.length}
+        data siap diimport.
+      </p>
+
+      <div style="overflow-x:auto">
+
+        <table class="preview-table">
+
+          <tr>
+
+            <th>Nama</th>
+
+            <th>Kelas</th>
+
+            <th>Tipe</th>
+
+          </tr>
+
+    `;
+
+
+    csvVoters.forEach(voter => {
+
+      html += `
+
+        <tr>
+
+          <td>
+            ${escapeHtml(voter.nama)}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              voter.kelas || "-"
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              voter.tipe_pemilih
+            )}
+          </td>
+
+        </tr>
+
+      `;
+
+    });
+
+
+    html += `
+
+        </table>
+
+      </div>
+
+    `;
+
+
+    preview.innerHTML =
+      html;
+
+
+    importButton.classList.remove(
+      "hidden"
+    );
+
+  }
+
+
+  // ===============================
+  // IMPORT KE DATABASE
+  // ===============================
+
+  async function importVoters() {
+
+    const message =
+      document.getElementById("csvMessage");
+
+    const importButton =
+      document.getElementById("importButton");
+
+
+    if (!csvVoters.length) {
+
+      message.textContent =
+        "Tidak ada data untuk diimport.";
+
+      return;
+    }
+
+
+    const yakin =
+      confirm(
+        `Import ${csvVoters.length} pemilih ke database?`
+      );
+
+
+    if (!yakin) return;
+
+
+    message.classList.remove(
+      "success-message"
+    );
+
+    message.textContent =
+      "Membuat kode pemilih...";
+
+
+    importButton.disabled = true;
+
+
+    try {
+
+      const rows = [];
+
+
+      for (const voter of csvVoters) {
+
+        const code =
+          await generateUniqueCode();
+
+
+        rows.push({
+
+          nis:
+            "V-" +
+            crypto.randomUUID()
+              .replaceAll("-", "")
+              .slice(0, 12),
+
+          name:
+            voter.nama,
+
+          kelas:
+            voter.kelas,
+
+          tipe_pemilih:
+            voter.tipe_pemilih,
+
+          pin_hash:
+            "CODE_PENDING",
+
+          voter_code:
+            code,
+
+          has_voted:
+            false
+
+        });
+
+      }
+
+
+      message.textContent =
+        "Memasukkan data ke database...";
+
+
+      const { error } =
+        await supabaseClient
+          .from("voters")
+          .insert(rows);
+
+
+      if (error) {
+
+        throw error;
+
+      }
+
+
+      message.classList.add(
+        "success-message"
+      );
+
+      message.textContent =
+        `Berhasil memasukkan ${rows.length} pemilih.`;
+
+
+      let codeText =
+        "Kode pemilih yang dibuat:\n\n";
+
+
+      rows.forEach(row => {
+
+        codeText +=
+          `${row.name} → ${row.voter_code}\n`;
+
+      });
+
+
+      document.getElementById(
+        "csvPreview"
+      ).innerHTML = `
+
+        <div class="code-box">
+          ${escapeHtml(codeText)}
+        </div>
+
+      `;
+
+
+      importButton.classList.add(
+        "hidden"
+      );
+
+
+      csvVoters = [];
+
+
+      document.getElementById(
+        "csvFile"
+      ).value = "";
+
+
+      await loadStatistics();
+
+
+    } catch (error) {
+
+      message.textContent =
+        "Import gagal: " +
+        error.message;
+
+    }
+
+
+    importButton.disabled = false;
 
   }
 
@@ -776,7 +1339,7 @@
 
 
   // ===============================
-  // CEK SESSION SAAT HALAMAN DIBUKA
+  // CEK SESSION
   // ===============================
 
   checkAdmin();
